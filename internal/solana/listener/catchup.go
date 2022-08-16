@@ -3,10 +3,11 @@ package listener
 import (
 	"context"
 	"fmt"
+
 	"github.com/olegfomenko/solana-go"
 	"github.com/olegfomenko/solana-go/rpc"
 	"gitlab.com/distributed_lab/logan/v3/errors"
-	"gitlab.com/rarify-protocol/solana-proxy-svc/internal/solana/contract"
+	"gitlab.com/rarify-protocol/sol-saver-svc/internal/solana/contract"
 )
 
 // Catchup will list all transactions from last to specified in config and stored in l.fromTx
@@ -52,7 +53,7 @@ func (l *listener) catchup(ctx context.Context, start solana.Signature) (solana.
 			return solana.Signature{}, errors.Wrap(err, "failed to get transaction "+sig.Signature.String())
 		}
 
-		err = l.parser.ParseTransaction(sig.Signature, tx, contract.InstructionWithdrawMetaplex, l.parseWithdrawMetaplex)
+		err = l.parser.ParseTransaction(sig.Signature, tx, contract.InstructionDepositMetaplex, l.parseDepositMetaplex)
 		if err != nil {
 			return solana.Signature{}, errors.Wrap(err, "failed to process transaction "+sig.Signature.String())
 		}

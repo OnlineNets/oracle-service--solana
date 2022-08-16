@@ -43,7 +43,7 @@ func (s *SaverService) Transactions() pg_dao.DAO {
 var _ SaverServer = &SaverService{}
 
 func (s *SaverService) GetTransactionInfo(ctx context.Context, request *MsgTransactionInfoRequest) (*MsgTransactionInfoResponse, error) {
-	tx := data.Transactions{}
+	tx := data.Transaction{}
 	ok, err := s.Transactions().FilterByColumn(data.TransactionsHashColumn, request.Hash).Get(&tx)
 
 	if err != nil {

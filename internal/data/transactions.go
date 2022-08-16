@@ -9,8 +9,9 @@ const (
 	TransactionsReceiverColumn      = "receiver"
 )
 
-type Transactions struct {
-	Hash          string `db:"hash" structs:"-"`
+type Transaction struct {
+	Id            uint64 `db:"id" structs:"-"`
+	Hash          string `db:"hash" structs:"hash"`
 	TokenAddress  string `db:"token_address" structs:"-"`
 	TokenId       string `db:"token_id" structs:"-"`
 	TargetNetwork string `db:"target_network" structs:"-"`

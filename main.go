@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"gitlab.com/tokend/enrex/vesting-cleaner/internal/cli"
+	"gitlab.com/rarify-protocol/sol-saver-svc/internal/cli"
 )
 
 func main() {

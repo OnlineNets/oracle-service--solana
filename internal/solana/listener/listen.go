@@ -2,10 +2,11 @@ package listener
 
 import (
 	"context"
+
 	"github.com/olegfomenko/solana-go/rpc"
 	"github.com/olegfomenko/solana-go/rpc/ws"
 	"gitlab.com/distributed_lab/logan/v3/errors"
-	"gitlab.com/rarify-protocol/solana-proxy-svc/internal/solana/contract"
+	"gitlab.com/rarify-protocol/sol-saver-svc/internal/solana/contract"
 )
 
 func (l *listener) Listen(ctx context.Context) {
@@ -44,7 +45,7 @@ func (l *listener) Listen(ctx context.Context) {
 				continue
 			}
 
-			err = l.parser.ParseTransaction(got.Value.Signature, tx, contract.InstructionWithdrawMetaplex, l.parseWithdrawMetaplex)
+			err = l.parser.ParseTransaction(got.Value.Signature, tx, contract.InstructionDepositMetaplex, l.parseDepositMetaplex)
 			if err != nil {
 				l.log.WithError(err).Error("failed to process transaction " + got.Value.Signature.String())
 			}

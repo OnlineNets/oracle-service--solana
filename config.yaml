@@ -8,3 +8,14 @@ db:
 listener:
   addr: :8000
 
+rpc:
+  url: https://api.devnet.solana.com
+
+ws:
+  url: wss://api.devnet.solana.com
+
+listen:
+  from_tx:
+  disable_catchup: true
+  program_id: CqnDZ8hyRgaXdeZ9X4Exz9LzMEMipi1sTweXRXyoJHpS
+
