@@ -27,8 +27,8 @@ type DepositMetaplex struct {
 	Instruction     Instruction
 	NetworkTo       string
 	ReceiverAddress string
-	Address         string
-	TokenId         string
+	Address         *string
+	TokenId         *string
 	Seeds           [32]byte
 	Nonce           [32]byte
 }

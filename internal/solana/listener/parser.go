@@ -1,11 +1,15 @@
 package listener
 
 import (
+	"context"
+
 	"github.com/near/borsh-go"
 	"github.com/olegfomenko/solana-go"
+	"github.com/olegfomenko/solana-go/rpc"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/solana/contract"
+	"gitlab.com/rarify-protocol/sol-saver-svc/internal/solana/metaplex"
 )
 
 func (l *listener) parseDepositMetaplex(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction) error {
@@ -17,13 +21,48 @@ func (l *listener) parseDepositMetaplex(tx solana.Signature, accounts []solana.P
 		return errors.Wrap(err, "error deserializing instruction data")
 	}
 
-	_, err = l.Transactions().Create(data.Transaction{
+	entry := data.Transaction{
 		Hash:          tx.String(),
-		TokenAddress:  accounts[instruction.Accounts[contract.DepositMintIndex]].String(),
-		TokenId:       instructionData.TokenId,
+		TokenMint:     accounts[contract.DepositMintIndex].String(),
 		TargetNetwork: instructionData.NetworkTo,
-		Receiver:      instructionData.Address,
-	})
+		Receiver:      instructionData.ReceiverAddress,
+	}
 
+	if instructionData.TokenId != nil {
+		entry.TokenId = *instructionData.TokenId
+	}
+
+	collection, err := getTokenCollectionAddress(l.solana, accounts[contract.DepositMintIndex])
+	if err != nil {
+		return errors.Wrap(err, "error getting collection")
+	}
+
+	entry.Collection = collection.String()
+
+	_, err = l.Transactions().Create(entry)
 	return err
+}
+
+func getTokenCollectionAddress(rpc *rpc.Client, mint solana.PublicKey) (solana.PublicKey, error) {
+	metadata, _, err := solana.FindTokenMetadataAddress(mint)
+	if err != nil {
+		return solana.PublicKey{}, err
+	}
+
+	metadataInfo, err := rpc.GetAccountInfo(context.TODO(), metadata)
+	if err != nil {
+		return solana.PublicKey{}, err
+	}
+
+	var data metaplex.Metadata
+	err = borsh.Deserialize(&data, metadataInfo.Value.Data.GetBinary())
+	if err != nil {
+		return solana.PublicKey{}, err
+	}
+
+	if data.Collection == nil {
+		return solana.PublicKey{}, nil
+	}
+
+	return data.Collection.Address, nil
 }

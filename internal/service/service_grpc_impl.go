@@ -56,8 +56,9 @@ func (s *SaverService) GetTransactionInfo(ctx context.Context, request *MsgTrans
 	}
 
 	return &MsgTransactionInfoResponse{
-		TokenAddress:  tx.TokenAddress,
 		TokenId:       tx.TokenId,
+		TokenMint:     tx.TokenMint,
+		Collection:    tx.Collection,
 		TargetNetwork: tx.TargetNetwork,
 		Receiver:      tx.Receiver,
 	}, nil

@@ -12,8 +12,9 @@ message MsgTransactionInfoRequest {
 }
 
 message MsgTransactionInfoResponse {
-  string tokenAddress = 1;
+  string tokenMint = 1;
   string tokenId = 2;
-  string targetNetwork = 3;
-  string receiver = 4;
+  string collection = 3;
+  string targetNetwork = 4;
+  string receiver = 5;
 }

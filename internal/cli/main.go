@@ -40,8 +40,14 @@ func Run(args []string) bool {
 
 	switch cmd {
 	case serviceCmd.FullCommand():
+		go func() {
+			err := listener.NewListener(cfg).Catchup(context.Background())
+			if err != nil {
+				panic(err)
+			}
+		}()
+
 		go listener.NewListener(cfg).Listen(context.Background())
-		go listener.NewListener(cfg).Catchup(context.Background())
 		err = service.NewSaverService(cfg).Run()
 	case migrateUpCmd.FullCommand():
 		err = MigrateUp(cfg)
