@@ -3,23 +3,8 @@ log:
   level: debug
 
 db:
-  url: "postgres://cleaner:cleaner@localhost:5432/cleaner?sslmode=disable"
-
-solana:
-  addr: https://api.devnet.solana.com
-
-vesting:
-  admin: 4kaCgatohjE7RtkqiPW41Q9Y6CSLZft32Z5ubG5rjWgD2qp9gAmXXQTdMLRM6FT2M7Hc6SeCifd3ShkMw1uwyLnm
-  program_id: 9sq6K1HqUUkgcyuvXyVoQatPGcpd22u5AV1PQWn3x3td
-  token_id: 5E66xZCBzjCttqksqhQibCfJoKtgPsisi7zGi7zR5Hku
-  unlock_on_start: true
+  url: "postgres://solana:solana@localhost:5432/solana?sslmode=disable"
 
 listener:
   addr: :8000
 
-cop:
-  disabled: true
-  endpoint: "http://..."
-  upstream: "http://..."
-  service_name: vesting-cleaner
-  service_port: 80

@@ -1,27 +1,18 @@
 package data
 
-import "time"
-
 const (
-	VestingsTableName     = "vestings"
-	VestingsAccountColumn = "account"
-	VestingsSeedColumn    = "seed"
-	VestingsStatusColumn  = "status"
-	VestingsDateColumn    = "date"
+	TransactionsTableName           = "transactions"
+	TransactionsHashColumn          = "hash"
+	TransactionsTokenAddressColumn  = "token_address"
+	TransactionsTokenIdColumn       = "token_id"
+	TransactionsTargetNetworkColumn = "target_network"
+	TransactionsReceiverColumn      = "receiver"
 )
 
-type Status string
-
-const (
-	StatusPending  Status = "pending"
-	StatusComplete Status = "complete"
-	StatusFailed   Status = "failed"
-)
-
-type Vesting struct {
-	Id      int64     `db:"id" structs:"-"`
-	Account string    `db:"account" structs:"account"`
-	Seed    []byte    `db:"seed" structs:"seed"`
-	Status  Status    `db:"status" structs:"status"`
-	Date    time.Time `db:"date" structs:"date"`
+type Transactions struct {
+	Hash          string `db:"hash" structs:"-"`
+	TokenAddress  string `db:"token_address" structs:"-"`
+	TokenId       string `db:"token_id" structs:"-"`
+	TargetNetwork string `db:"target_network" structs:"-"`
+	Receiver      string `db:"receiver" structs:"-"`
 }

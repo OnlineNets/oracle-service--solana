@@ -1,13 +1,11 @@
 package cli
 
 import (
-	"context"
 	"github.com/alecthomas/kingpin"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/logan/v3"
-	"gitlab.com/tokend/enrex/vesting-cleaner/internal/config"
-	"gitlab.com/tokend/enrex/vesting-cleaner/internal/http"
-	"gitlab.com/tokend/enrex/vesting-cleaner/internal/scheduler"
+	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
+	"gitlab.com/rarify-protocol/sol-saver-svc/internal/service"
 )
 
 func Run(args []string) bool {
@@ -22,7 +20,7 @@ func Run(args []string) bool {
 	cfg := config.New(kv.MustFromEnv())
 	log = cfg.Log()
 
-	app := kingpin.New("vesting-cleaner", "")
+	app := kingpin.New("sol-saver-svc", "")
 
 	runCmd := app.Command("run", "run command")
 	serviceCmd := runCmd.Command("service", "run service") // you can insert custom help
@@ -39,8 +37,7 @@ func Run(args []string) bool {
 
 	switch cmd {
 	case serviceCmd.FullCommand():
-		scheduler.NewScheduler(cfg).Run(context.Background())
-		http.NewService(cfg).Run()
+		err = service.NewSaverService(cfg).Run()
 	case migrateUpCmd.FullCommand():
 		err = MigrateUp(cfg)
 	case migrateDownCmd.FullCommand():

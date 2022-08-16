@@ -1,24 +1,21 @@
 FROM golang:1.17-alpine as buildbase
 
-RUN apk add git build-base
-
-WORKDIR /go/src/gitlab.com/tokend/enrex/vesting-cleaner
-
+WORKDIR /go/src/gitlab.com/gitlab.com/rarify-protocol/sol-saver-svc
+COPY vendor .
 COPY . .
 
 ENV GO111MODULE="on"
 ENV CGO_ENABLED=0
 ENV GOOS="linux"
 
-RUN go mod vendor
-RUN go build -a -mod=vendor -o /usr/local/bin/vesting-cleaner gitlab.com/tokend/enrex/vesting-cleaner
+RUN go build -o /usr/local/bin/sol-saver-svc gitlab.com/gitlab.com/rarify-protocol/sol-saver-svc
 
 
 ###
 
 FROM alpine:3.9
 
-COPY --from=buildbase /usr/local/bin/vesting-cleaner /usr/local/bin/vesting-cleaner
+COPY --from=buildbase /usr/local/bin/sol-saver-svc /usr/local/bin/sol-saver-svc
 RUN apk add --no-cache ca-certificates
 
-ENTRYPOINT ["vesting-cleaner"]
+ENTRYPOINT ["sol-saver-svc"]
