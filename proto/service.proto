@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "gitlab.com/rarify-protocol/sol-saver-svc/internal/service";
+
+service Saver {
+  rpc GetTransactionInfo(MsgTransactionInfoRequest) returns (MsgTransactionInfoResponse);
+}
+
+
+message MsgTransactionInfoRequest {
+  string hash = 1;
+}
+
+message MsgTransactionInfoResponse {
+  string tokenAddress = 1;
+  string tokenId = 2;
+  string targetNetwork = 3;
+  string receiver = 4;
+}
