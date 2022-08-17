@@ -6,6 +6,7 @@ import (
 
 	pg_dao "github.com/olegfomenko/pg-dao"
 	"gitlab.com/distributed_lab/logan/v3"
+	lib "gitlab.com/rarify-protocol/saver-grpc-lib/grpc"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data"
 	"google.golang.org/grpc"
@@ -14,7 +15,7 @@ import (
 )
 
 type SaverService struct {
-	UnimplementedSaverServer
+	lib.UnimplementedSaverServer
 	log          *logan.Entry
 	transactions pg_dao.DAO
 	listener     net.Listener
@@ -30,7 +31,7 @@ func NewSaverService(cfg config.Config) *SaverService {
 
 func (s *SaverService) Run() error {
 	grpcServer := grpc.NewServer()
-	RegisterSaverServer(grpcServer, s)
+	lib.RegisterSaverServer(grpcServer, s)
 	return grpcServer.Serve(s.listener)
 }
 
@@ -40,9 +41,9 @@ func (s *SaverService) Transactions() pg_dao.DAO {
 
 // gRPC service implementation
 
-var _ SaverServer = &SaverService{}
+var _ lib.SaverServer = &SaverService{}
 
-func (s *SaverService) GetTransactionInfo(ctx context.Context, request *MsgTransactionInfoRequest) (*MsgTransactionInfoResponse, error) {
+func (s *SaverService) GetTransactionInfo(ctx context.Context, request *lib.MsgTransactionInfoRequest) (*lib.MsgTransactionInfoResponse, error) {
 	tx := data.Transaction{}
 	ok, err := s.Transactions().FilterByColumn(data.TransactionsHashColumn, request.Hash).Get(&tx)
 
@@ -55,9 +56,8 @@ func (s *SaverService) GetTransactionInfo(ctx context.Context, request *MsgTrans
 		return nil, status.Errorf(codes.NotFound, "Transaction not found")
 	}
 
-	return &MsgTransactionInfoResponse{
+	return &lib.MsgTransactionInfoResponse{
 		TokenId:       tx.TokenId,
-		TokenMint:     tx.TokenMint,
 		Collection:    tx.Collection,
 		TargetNetwork: tx.TargetNetwork,
 		Receiver:      tx.Receiver,

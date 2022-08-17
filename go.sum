@@ -594,6 +594,10 @@ gitlab.com/distributed_lab/logan v3.8.1+incompatible h1:bYiP3P0AA0cpAL/fyOYWGq1a
 gitlab.com/distributed_lab/logan v3.8.1+incompatible/go.mod h1:25oL/FPFXmyYzWeA6vahMvnFJV8P7mOx0jZhRP7nhlc=
 gitlab.com/distributed_lab/running v0.0.0-20200706131153-4af0e83eb96c h1:cpIjV8C//7sLVvMcBaFGopI8sMcCw8Za7T0HIf52esU=
 gitlab.com/distributed_lab/running v0.0.0-20200706131153-4af0e83eb96c/go.mod h1:4TnADX84dQjQMRHKIMPCVL0L97rD/Jxv0xDbrN6aKzk=
+gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817124903-6a34d71c00f4 h1:TLumCYVXB0aWmxlqMLF0tmy/huUySa6Nmh4F4Cyh9jU=
+gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817124903-6a34d71c00f4/go.mod h1:vs8Bf5FHa79SfHpkIri50ak0MqkhzcZbfn2WnTCI8G4=
+gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817130439-cf87c589f717 h1:Tv7R75h+5tVrnndwkULBA/jIk6gftCAGwH2+hAU3J9A=
+gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817130439-cf87c589f717/go.mod h1:vs8Bf5FHa79SfHpkIri50ak0MqkhzcZbfn2WnTCI8G4=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/etcd/api/v3 v3.5.0/go.mod h1:cbVKeC6lCfl7j/8jBhAK6aIYO9XOjdptoxU/nLQcPvs=
 go.etcd.io/etcd/client/pkg/v3 v3.5.0/go.mod h1:IJHfcCEKxYu1Os13ZdwCwIUTUVGYTSAM3YSwc9/Ac1g=

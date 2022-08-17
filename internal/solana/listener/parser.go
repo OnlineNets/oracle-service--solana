@@ -28,7 +28,10 @@ func (l *listener) parseDepositMetaplex(tx solana.Signature, accounts []solana.P
 		Receiver:      instructionData.ReceiverAddress,
 	}
 
-	if instructionData.TokenId != nil {
+	switch instructionData.TokenId {
+	case nil:
+		entry.TokenId = entry.TokenMint
+	default:
 		entry.TokenId = *instructionData.TokenId
 	}
 
