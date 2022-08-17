@@ -61,5 +61,6 @@ func (s *SaverService) GetTransactionInfo(ctx context.Context, request *lib.MsgT
 		Collection:    tx.Collection,
 		TargetNetwork: tx.TargetNetwork,
 		Receiver:      tx.Receiver,
+		TokenType:     lib.Type(tx.TokenType),
 	}, nil
 }

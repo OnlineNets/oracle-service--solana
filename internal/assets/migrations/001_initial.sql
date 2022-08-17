@@ -8,6 +8,7 @@ create table transactions
     token_mint     text                  not null,
     token_id       text,
     target_network text                  not null,
+    token_type     smallint              not null,
     receiver       text                  not null
 );
 

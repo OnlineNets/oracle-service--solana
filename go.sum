@@ -598,6 +598,10 @@ gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817124903-6a34d71c00f4 h1:
 gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817124903-6a34d71c00f4/go.mod h1:vs8Bf5FHa79SfHpkIri50ak0MqkhzcZbfn2WnTCI8G4=
 gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817130439-cf87c589f717 h1:Tv7R75h+5tVrnndwkULBA/jIk6gftCAGwH2+hAU3J9A=
 gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817130439-cf87c589f717/go.mod h1:vs8Bf5FHa79SfHpkIri50ak0MqkhzcZbfn2WnTCI8G4=
+gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817153457-fb3ebd6c44b7 h1:j3bqL8a095kwix28vV+e64ctAo75stVGlx2zgZdf18k=
+gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817153457-fb3ebd6c44b7/go.mod h1:vs8Bf5FHa79SfHpkIri50ak0MqkhzcZbfn2WnTCI8G4=
+gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817154008-c23e0eba7b4f h1:OLwZc3OMKFgNBKIeqHRl/7Wi2eqoUpACdbyLi6L3qrI=
+gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817154008-c23e0eba7b4f/go.mod h1:vs8Bf5FHa79SfHpkIri50ak0MqkhzcZbfn2WnTCI8G4=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/etcd/api/v3 v3.5.0/go.mod h1:cbVKeC6lCfl7j/8jBhAK6aIYO9XOjdptoxU/nLQcPvs=
 go.etcd.io/etcd/client/pkg/v3 v3.5.0/go.mod h1:IJHfcCEKxYu1Os13ZdwCwIUTUVGYTSAM3YSwc9/Ac1g=

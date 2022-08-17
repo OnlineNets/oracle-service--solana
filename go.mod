@@ -69,7 +69,7 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	gitlab.com/distributed_lab/running v0.0.0-20200706131153-4af0e83eb96c // indirect
-	gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817130439-cf87c589f717 // indirect
+	gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817154008-c23e0eba7b4f // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect

@@ -225,7 +225,7 @@ gitlab.com/distributed_lab/logan/v3/hook/sentry
 # gitlab.com/distributed_lab/running v0.0.0-20200706131153-4af0e83eb96c
 ## explicit
 gitlab.com/distributed_lab/running
-# gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817130439-cf87c589f717
+# gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220817154008-c23e0eba7b4f
 ## explicit; go 1.18
 gitlab.com/rarify-protocol/saver-grpc-lib/grpc
 # go.opencensus.io v0.23.0

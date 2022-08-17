@@ -7,6 +7,7 @@ import (
 	"github.com/olegfomenko/solana-go"
 	"github.com/olegfomenko/solana-go/rpc"
 	"gitlab.com/distributed_lab/logan/v3/errors"
+	lib "gitlab.com/rarify-protocol/saver-grpc-lib/grpc"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/solana/contract"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/solana/metaplex"
@@ -26,6 +27,8 @@ func (l *listener) parseDepositMetaplex(tx solana.Signature, accounts []solana.P
 		TokenMint:     accounts[contract.DepositMintIndex].String(),
 		TargetNetwork: instructionData.NetworkTo,
 		Receiver:      instructionData.ReceiverAddress,
+		// TODO depends on contract call
+		TokenType: int16(lib.Type_METAPLEX_NFT),
 	}
 
 	switch instructionData.TokenId {

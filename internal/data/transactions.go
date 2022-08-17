@@ -8,6 +8,7 @@ const (
 	TransactionsTokenIdColumn       = "token_id"
 	TransactionsTargetNetworkColumn = "target_network"
 	TransactionsReceiverColumn      = "receiver"
+	TransactionsTokenTypeColumn     = "token_type"
 )
 
 type Transaction struct {
@@ -18,4 +19,5 @@ type Transaction struct {
 	TokenId       string `db:"token_id" structs:"token_id"`
 	TargetNetwork string `db:"target_network" structs:"target_network"`
 	Receiver      string `db:"receiver" structs:"receiver"`
+	TokenType     int16  `db:"token_type" structs:"token_type"`
 }
