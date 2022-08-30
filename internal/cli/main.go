@@ -8,6 +8,7 @@ import (
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/service"
+	"gitlab.com/rarify-protocol/sol-saver-svc/internal/solana/catchup"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/solana/listener"
 )
 
@@ -41,13 +42,13 @@ func Run(args []string) bool {
 	switch cmd {
 	case serviceCmd.FullCommand():
 		go func() {
-			err := listener.NewListener(cfg).Catchup(context.Background())
+			err := catchup.NewService(cfg).Catchup(context.Background())
 			if err != nil {
 				panic(err)
 			}
 		}()
 
-		go listener.NewListener(cfg).Listen(context.Background())
+		go listener.NewService(cfg).Listen(context.Background())
 		err = service.NewSaverService(cfg).Run()
 	case migrateUpCmd.FullCommand():
 		err = MigrateUp(cfg)

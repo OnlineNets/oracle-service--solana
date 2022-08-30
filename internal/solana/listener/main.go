@@ -3,39 +3,73 @@ package listener
 import (
 	"context"
 
-	pg_dao "github.com/olegfomenko/pg-dao"
+	"github.com/olegfomenko/solana-go"
 	"github.com/olegfomenko/solana-go/rpc"
+	"github.com/olegfomenko/solana-go/rpc/ws"
 	"gitlab.com/distributed_lab/logan/v3"
+	"gitlab.com/distributed_lab/logan/v3/errors"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/solana/tx"
+	"gitlab.com/rarify-protocol/sol-saver-svc/internal/solana/parser"
 )
 
-type Listener interface {
-	Listen(ctx context.Context)
-	Catchup(ctx context.Context) error
+type Service struct {
+	log    *logan.Entry
+	parser *parser.Service
+
+	programId  solana.PublicKey
+	wsEndpoint string
 }
 
-type listener struct {
-	parser       *tx.Parser
-	wsEndpoint   string
-	solana       *rpc.Client
-	config       config.ListenConf
-	transactions pg_dao.DAO
-	log          *logan.Entry
-}
-
-func NewListener(cfg config.Config) Listener {
-	return &listener{
-		parser:       tx.NewParser(cfg),
-		wsEndpoint:   cfg.SolanaWSEndpoint(),
-		solana:       cfg.SolanaRPC(),
-		config:       cfg.ListenConf(),
-		transactions: pg_dao.NewDAO(cfg.DB(), data.TransactionsTableName),
-		log:          cfg.Log(),
+func NewService(cfg config.Config) *Service {
+	return &Service{
+		log:        cfg.Log(),
+		parser:     parser.NewService(cfg),
+		programId:  cfg.ListenConf().ProgramId,
+		wsEndpoint: cfg.SolanaWSEndpoint(),
 	}
 }
 
-func (l *listener) Transactions() pg_dao.DAO {
-	return l.transactions.Clone()
+func (s *Service) Listen(ctx context.Context) {
+	wsCtx, wsCancel := context.WithCancel(ctx)
+	defer wsCancel()
+
+	client, err := ws.Connect(wsCtx, s.wsEndpoint)
+	if err != nil {
+		panic(errors.Wrap(err, "error opening solana websocket"))
+	}
+
+	sub, err := client.LogsSubscribeMentions(
+		s.programId,
+		rpc.CommitmentFinalized,
+	)
+
+	if err != nil {
+		panic(errors.Wrap(err, "error subscribing to the program logs"))
+	}
+
+	defer sub.Unsubscribe()
+	defer client.Close()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			got, err := sub.Recv()
+			if err != nil {
+				panic(err)
+			}
+
+			tx, err := s.parser.GetTransaction(ctx, got.Value.Signature)
+			if err != nil {
+				s.log.WithError(err).Error("failed to get transaction " + got.Value.Signature.String())
+				continue
+			}
+
+			err = s.parser.ParseTransaction(got.Value.Signature, tx)
+			if err != nil {
+				s.log.WithError(err).Error("failed to process transaction " + got.Value.Signature.String())
+			}
+		}
+	}
 }
