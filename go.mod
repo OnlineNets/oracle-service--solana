@@ -12,7 +12,7 @@ require (
 	gitlab.com/distributed_lab/figure v2.1.0+incompatible
 	gitlab.com/distributed_lab/kit v1.11.1
 	gitlab.com/distributed_lab/logan v3.8.1+incompatible
-	gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220830131214-161aaa85a9f0
+	gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220908212518-8b28ddbd37ca
 	gitlab.com/rarify-protocol/solana-program-go v0.0.0-20220830100936-0e11c888a511
 	google.golang.org/grpc v1.48.0
 )

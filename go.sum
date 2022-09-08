@@ -598,6 +598,8 @@ gitlab.com/distributed_lab/running v0.0.0-20200706131153-4af0e83eb96c h1:cpIjV8C
 gitlab.com/distributed_lab/running v0.0.0-20200706131153-4af0e83eb96c/go.mod h1:4TnADX84dQjQMRHKIMPCVL0L97rD/Jxv0xDbrN6aKzk=
 gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220830131214-161aaa85a9f0 h1:92hTznqIuqeQf4a8a7n9Biidbrrn/W/aiqnAkpzAw/o=
 gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220830131214-161aaa85a9f0/go.mod h1:vs8Bf5FHa79SfHpkIri50ak0MqkhzcZbfn2WnTCI8G4=
+gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220908212518-8b28ddbd37ca h1:tY22jVau1XcLHaiVtQ9QiGIztBRXhqXATWf8NSw7eMc=
+gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220908212518-8b28ddbd37ca/go.mod h1:vs8Bf5FHa79SfHpkIri50ak0MqkhzcZbfn2WnTCI8G4=
 gitlab.com/rarify-protocol/solana-program-go v0.0.0-20220830100936-0e11c888a511 h1:gDd7VCAC3T6FLqcOH8LUZEuXNU4je/OtR6UOe+Zocr0=
 gitlab.com/rarify-protocol/solana-program-go v0.0.0-20220830100936-0e11c888a511/go.mod h1:LUviecqxWWtmuHwPyiFNIRiNadUminEfLO8mjR2jMlU=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
