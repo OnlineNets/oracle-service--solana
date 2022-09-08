@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"math/big"
+	"fmt"
 	"net"
 
 	pg_dao "github.com/olegfomenko/pg-dao"
@@ -44,7 +44,19 @@ func (s *SaverService) Run() error {
 
 var _ lib.SaverServer = &SaverService{}
 
-func (s *SaverService) GetNativeDepositInfo(ctx context.Context, request *lib.MsgTransactionInfoRequest) (*lib.MsgNativeDepositResponse, error) {
+func (s *SaverService) GetDepositInfo(ctx context.Context, request *lib.MsgTransactionInfoRequest) (*lib.MsgDepositResponse, error) {
+	switch TokenType(request.Type) {
+	case TypeNative:
+		return s.getNativeDeposit(request)
+	case TypeFT:
+		return s.getFTDeposit(request)
+	case TypeNFT:
+		return s.getNFTDeposit(request)
+	}
+	return nil, status.Errorf(codes.InvalidArgument, "Wrong token type")
+}
+
+func (s *SaverService) getNativeDeposit(request *lib.MsgTransactionInfoRequest) (*lib.MsgDepositResponse, error) {
 	entry := data.NativeDeposit{}
 	ok, err := s.nativeDeposits.Clone().FilterByColumn(data.HashColumnName, request.Hash).Get(&entry)
 	if err != nil {
@@ -56,15 +68,15 @@ func (s *SaverService) GetNativeDepositInfo(ctx context.Context, request *lib.Ms
 		return nil, status.Errorf(codes.NotFound, "Deposit not found")
 	}
 
-	return &lib.MsgNativeDepositResponse{
+	return &lib.MsgDepositResponse{
 		TargetNetwork: entry.TargetNetwork,
 		Sender:        entry.Sender,
 		Receiver:      entry.Receiver,
-		Amount:        new(big.Int).SetUint64(entry.Amount).Bytes(),
+		Amount:        fmt.Sprint(entry.Amount),
 	}, nil
 }
 
-func (s *SaverService) GetFTDepositInfo(ctx context.Context, request *lib.MsgTransactionInfoRequest) (*lib.MsgFTDepositResponse, error) {
+func (s *SaverService) getFTDeposit(request *lib.MsgTransactionInfoRequest) (*lib.MsgDepositResponse, error) {
 	entry := data.FTDeposit{}
 	ok, err := s.ftDeposits.Clone().FilterByColumn(data.HashColumnName, request.Hash).Get(&entry)
 	if err != nil {
@@ -76,16 +88,16 @@ func (s *SaverService) GetFTDepositInfo(ctx context.Context, request *lib.MsgTra
 		return nil, status.Errorf(codes.NotFound, "Deposit not found")
 	}
 
-	return &lib.MsgFTDepositResponse{
+	return &lib.MsgDepositResponse{
 		TargetNetwork: entry.TargetNetwork,
 		Sender:        entry.Sender,
 		Receiver:      entry.Receiver,
-		Amount:        new(big.Int).SetUint64(entry.Amount).Bytes(),
+		Amount:        fmt.Sprint(entry.Amount),
 		TokenAddress:  entry.Mint,
 	}, nil
 }
 
-func (s *SaverService) GetNFTDepositInfo(ctx context.Context, request *lib.MsgTransactionInfoRequest) (*lib.MsgNFTDepositResponse, error) {
+func (s *SaverService) getNFTDeposit(request *lib.MsgTransactionInfoRequest) (*lib.MsgDepositResponse, error) {
 	entry := data.NFTDeposit{}
 	ok, err := s.nftDeposits.Clone().FilterByColumn(data.HashColumnName, request.Hash).Get(&entry)
 	if err != nil {
@@ -97,7 +109,7 @@ func (s *SaverService) GetNFTDepositInfo(ctx context.Context, request *lib.MsgTr
 		return nil, status.Errorf(codes.NotFound, "Deposit not found")
 	}
 
-	return &lib.MsgNFTDepositResponse{
+	return &lib.MsgDepositResponse{
 		TargetNetwork: entry.TargetNetwork,
 		Sender:        entry.Sender,
 		Receiver:      entry.Receiver,

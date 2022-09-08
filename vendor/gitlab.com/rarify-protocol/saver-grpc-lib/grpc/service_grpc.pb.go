@@ -22,12 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SaverClient interface {
-	GetNativeDepositInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgNativeDepositResponse, error)
-	GetFTDepositInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgFTDepositResponse, error)
-	GetNFTDepositInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgNFTDepositResponse, error)
-	GetNativeWithdrawInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgNativeWithdrawResponse, error)
-	GetFTWithdrawInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgFTWithdrawResponse, error)
-	GetNFTWithdrawInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgNFTWithdrawResponse, error)
+	GetDepositInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgDepositResponse, error)
+	GetWithdrawInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgWithdrawResponse, error)
 }
 
 type saverClient struct {
@@ -38,54 +34,18 @@ func NewSaverClient(cc grpc.ClientConnInterface) SaverClient {
 	return &saverClient{cc}
 }
 
-func (c *saverClient) GetNativeDepositInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgNativeDepositResponse, error) {
-	out := new(MsgNativeDepositResponse)
-	err := c.cc.Invoke(ctx, "/Saver/GetNativeDepositInfo", in, out, opts...)
+func (c *saverClient) GetDepositInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgDepositResponse, error) {
+	out := new(MsgDepositResponse)
+	err := c.cc.Invoke(ctx, "/Saver/GetDepositInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *saverClient) GetFTDepositInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgFTDepositResponse, error) {
-	out := new(MsgFTDepositResponse)
-	err := c.cc.Invoke(ctx, "/Saver/GetFTDepositInfo", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *saverClient) GetNFTDepositInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgNFTDepositResponse, error) {
-	out := new(MsgNFTDepositResponse)
-	err := c.cc.Invoke(ctx, "/Saver/GetNFTDepositInfo", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *saverClient) GetNativeWithdrawInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgNativeWithdrawResponse, error) {
-	out := new(MsgNativeWithdrawResponse)
-	err := c.cc.Invoke(ctx, "/Saver/GetNativeWithdrawInfo", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *saverClient) GetFTWithdrawInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgFTWithdrawResponse, error) {
-	out := new(MsgFTWithdrawResponse)
-	err := c.cc.Invoke(ctx, "/Saver/GetFTWithdrawInfo", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *saverClient) GetNFTWithdrawInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgNFTWithdrawResponse, error) {
-	out := new(MsgNFTWithdrawResponse)
-	err := c.cc.Invoke(ctx, "/Saver/GetNFTWithdrawInfo", in, out, opts...)
+func (c *saverClient) GetWithdrawInfo(ctx context.Context, in *MsgTransactionInfoRequest, opts ...grpc.CallOption) (*MsgWithdrawResponse, error) {
+	out := new(MsgWithdrawResponse)
+	err := c.cc.Invoke(ctx, "/Saver/GetWithdrawInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,12 +56,8 @@ func (c *saverClient) GetNFTWithdrawInfo(ctx context.Context, in *MsgTransaction
 // All implementations must embed UnimplementedSaverServer
 // for forward compatibility
 type SaverServer interface {
-	GetNativeDepositInfo(context.Context, *MsgTransactionInfoRequest) (*MsgNativeDepositResponse, error)
-	GetFTDepositInfo(context.Context, *MsgTransactionInfoRequest) (*MsgFTDepositResponse, error)
-	GetNFTDepositInfo(context.Context, *MsgTransactionInfoRequest) (*MsgNFTDepositResponse, error)
-	GetNativeWithdrawInfo(context.Context, *MsgTransactionInfoRequest) (*MsgNativeWithdrawResponse, error)
-	GetFTWithdrawInfo(context.Context, *MsgTransactionInfoRequest) (*MsgFTWithdrawResponse, error)
-	GetNFTWithdrawInfo(context.Context, *MsgTransactionInfoRequest) (*MsgNFTWithdrawResponse, error)
+	GetDepositInfo(context.Context, *MsgTransactionInfoRequest) (*MsgDepositResponse, error)
+	GetWithdrawInfo(context.Context, *MsgTransactionInfoRequest) (*MsgWithdrawResponse, error)
 	mustEmbedUnimplementedSaverServer()
 }
 
@@ -109,23 +65,11 @@ type SaverServer interface {
 type UnimplementedSaverServer struct {
 }
 
-func (UnimplementedSaverServer) GetNativeDepositInfo(context.Context, *MsgTransactionInfoRequest) (*MsgNativeDepositResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetNativeDepositInfo not implemented")
+func (UnimplementedSaverServer) GetDepositInfo(context.Context, *MsgTransactionInfoRequest) (*MsgDepositResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDepositInfo not implemented")
 }
-func (UnimplementedSaverServer) GetFTDepositInfo(context.Context, *MsgTransactionInfoRequest) (*MsgFTDepositResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFTDepositInfo not implemented")
-}
-func (UnimplementedSaverServer) GetNFTDepositInfo(context.Context, *MsgTransactionInfoRequest) (*MsgNFTDepositResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetNFTDepositInfo not implemented")
-}
-func (UnimplementedSaverServer) GetNativeWithdrawInfo(context.Context, *MsgTransactionInfoRequest) (*MsgNativeWithdrawResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetNativeWithdrawInfo not implemented")
-}
-func (UnimplementedSaverServer) GetFTWithdrawInfo(context.Context, *MsgTransactionInfoRequest) (*MsgFTWithdrawResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFTWithdrawInfo not implemented")
-}
-func (UnimplementedSaverServer) GetNFTWithdrawInfo(context.Context, *MsgTransactionInfoRequest) (*MsgNFTWithdrawResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetNFTWithdrawInfo not implemented")
+func (UnimplementedSaverServer) GetWithdrawInfo(context.Context, *MsgTransactionInfoRequest) (*MsgWithdrawResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWithdrawInfo not implemented")
 }
 func (UnimplementedSaverServer) mustEmbedUnimplementedSaverServer() {}
 
@@ -140,110 +84,38 @@ func RegisterSaverServer(s grpc.ServiceRegistrar, srv SaverServer) {
 	s.RegisterService(&Saver_ServiceDesc, srv)
 }
 
-func _Saver_GetNativeDepositInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Saver_GetDepositInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MsgTransactionInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SaverServer).GetNativeDepositInfo(ctx, in)
+		return srv.(SaverServer).GetDepositInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Saver/GetNativeDepositInfo",
+		FullMethod: "/Saver/GetDepositInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SaverServer).GetNativeDepositInfo(ctx, req.(*MsgTransactionInfoRequest))
+		return srv.(SaverServer).GetDepositInfo(ctx, req.(*MsgTransactionInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Saver_GetFTDepositInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Saver_GetWithdrawInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MsgTransactionInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SaverServer).GetFTDepositInfo(ctx, in)
+		return srv.(SaverServer).GetWithdrawInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Saver/GetFTDepositInfo",
+		FullMethod: "/Saver/GetWithdrawInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SaverServer).GetFTDepositInfo(ctx, req.(*MsgTransactionInfoRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Saver_GetNFTDepositInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgTransactionInfoRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SaverServer).GetNFTDepositInfo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/Saver/GetNFTDepositInfo",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SaverServer).GetNFTDepositInfo(ctx, req.(*MsgTransactionInfoRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Saver_GetNativeWithdrawInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgTransactionInfoRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SaverServer).GetNativeWithdrawInfo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/Saver/GetNativeWithdrawInfo",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SaverServer).GetNativeWithdrawInfo(ctx, req.(*MsgTransactionInfoRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Saver_GetFTWithdrawInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgTransactionInfoRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SaverServer).GetFTWithdrawInfo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/Saver/GetFTWithdrawInfo",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SaverServer).GetFTWithdrawInfo(ctx, req.(*MsgTransactionInfoRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Saver_GetNFTWithdrawInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgTransactionInfoRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SaverServer).GetNFTWithdrawInfo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/Saver/GetNFTWithdrawInfo",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SaverServer).GetNFTWithdrawInfo(ctx, req.(*MsgTransactionInfoRequest))
+		return srv.(SaverServer).GetWithdrawInfo(ctx, req.(*MsgTransactionInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -256,28 +128,12 @@ var Saver_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*SaverServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetNativeDepositInfo",
-			Handler:    _Saver_GetNativeDepositInfo_Handler,
+			MethodName: "GetDepositInfo",
+			Handler:    _Saver_GetDepositInfo_Handler,
 		},
 		{
-			MethodName: "GetFTDepositInfo",
-			Handler:    _Saver_GetFTDepositInfo_Handler,
-		},
-		{
-			MethodName: "GetNFTDepositInfo",
-			Handler:    _Saver_GetNFTDepositInfo_Handler,
-		},
-		{
-			MethodName: "GetNativeWithdrawInfo",
-			Handler:    _Saver_GetNativeWithdrawInfo_Handler,
-		},
-		{
-			MethodName: "GetFTWithdrawInfo",
-			Handler:    _Saver_GetFTWithdrawInfo_Handler,
-		},
-		{
-			MethodName: "GetNFTWithdrawInfo",
-			Handler:    _Saver_GetNFTWithdrawInfo_Handler,
+			MethodName: "GetWithdrawInfo",
+			Handler:    _Saver_GetWithdrawInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

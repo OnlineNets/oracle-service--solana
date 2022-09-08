@@ -227,7 +227,7 @@ gitlab.com/distributed_lab/logan/v3/hook/sentry
 # gitlab.com/distributed_lab/running v0.0.0-20200706131153-4af0e83eb96c
 ## explicit
 gitlab.com/distributed_lab/running
-# gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220908212518-8b28ddbd37ca
+# gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20220908220802-e537fc75fa86
 ## explicit; go 1.18
 gitlab.com/rarify-protocol/saver-grpc-lib/grpc
 # gitlab.com/rarify-protocol/solana-program-go v0.0.0-20220830100936-0e11c888a511
