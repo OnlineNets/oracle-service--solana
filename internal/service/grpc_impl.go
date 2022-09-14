@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/gagliardetto/solana-go"
 	pg_dao "github.com/olegfomenko/pg-dao"
 	"gitlab.com/distributed_lab/logan/v3"
 	lib "gitlab.com/rarify-protocol/saver-grpc-lib/grpc"
@@ -70,7 +72,7 @@ func (s *SaverService) getNativeDeposit(request *lib.MsgTransactionInfoRequest) 
 
 	return &lib.MsgDepositResponse{
 		TargetNetwork: entry.TargetNetwork,
-		Sender:        entry.Sender,
+		Sender:        hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Sender).Bytes()),
 		Receiver:      entry.Receiver,
 		Amount:        fmt.Sprint(entry.Amount),
 	}, nil
@@ -90,10 +92,10 @@ func (s *SaverService) getFTDeposit(request *lib.MsgTransactionInfoRequest) (*li
 
 	return &lib.MsgDepositResponse{
 		TargetNetwork: entry.TargetNetwork,
-		Sender:        entry.Sender,
+		Sender:        hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Sender).Bytes()),
 		Receiver:      entry.Receiver,
 		Amount:        fmt.Sprint(entry.Amount),
-		TokenAddress:  entry.Mint,
+		TokenAddress:  hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Mint).Bytes()),
 	}, nil
 }
 
@@ -111,9 +113,9 @@ func (s *SaverService) getNFTDeposit(request *lib.MsgTransactionInfoRequest) (*l
 
 	return &lib.MsgDepositResponse{
 		TargetNetwork: entry.TargetNetwork,
-		Sender:        entry.Sender,
+		Sender:        hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Sender).Bytes()),
 		Receiver:      entry.Receiver,
-		TokenAddress:  entry.Collection,
-		TokenId:       entry.Mint,
+		TokenAddress:  hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Collection).Bytes()),
+		TokenId:       hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Mint).Bytes()),
 	}, nil
 }

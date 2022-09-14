@@ -23,8 +23,9 @@ type nftParser struct {
 
 func NewNFTParser(cfg config.Config) *nftParser {
 	return &nftParser{
-		log: cfg.Log(),
-		dao: pg_dao.NewDAO(cfg.DB(), data.NFTDepositsTableName),
+		log:    cfg.Log(),
+		dao:    pg_dao.NewDAO(cfg.DB(), data.NFTDepositsTableName),
+		solana: cfg.SolanaRPC(),
 	}
 }
 

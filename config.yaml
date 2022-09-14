@@ -15,7 +15,7 @@ ws:
   url: wss://api.devnet.solana.com
 
 listen:
-  from_tx: d68YSkgCZsp6x4cpz8NotkhkRSGQmnPVAyDRPXpMr8ysSK2XuB1UeqKQsDdn55nfK38iknJUreRs9regNjxe33F
-  disable_catchup: false
-  program_id: CqnDZ8hyRgaXdeZ9X4Exz9LzMEMipi1sTweXRXyoJHpS
+  from_tx: 34dkUzqZcofoxZHXnSNTmYrvzbdRuJyqxSRQcEqLHopwbApsu7N1t5CoPFsFneSop2ym7PGEvZVyWuCTEFfuY3yy
+  disable_catchup: true
+  program_id: GexDbBi7B2UrJDi9JkrWH9fFVhmysN7u5C9zT2HkC6yZ
 

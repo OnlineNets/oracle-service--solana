@@ -7,7 +7,7 @@ create table native_deposits
     sender         text                  not null,
     receiver       text                  not null,
     target_network text                  not null,
-    amount         bigint                not null,
+    amount         bigint                not null
 );
 
 create table ft_deposits
@@ -18,7 +18,7 @@ create table ft_deposits
     receiver       text                  not null,
     target_network text                  not null,
     amount         bigint                not null,
-    mint           text                  not null,
+    mint           text                  not null
 );
 
 create table nft_deposits
@@ -29,7 +29,7 @@ create table nft_deposits
     receiver       text                  not null,
     target_network text                  not null,
     mint           text                  not null,
-    collection     text,
+    collection     text
 );
 
 -- +migrate Down

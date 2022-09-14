@@ -20,6 +20,7 @@ package bin
 import (
 	"encoding/binary"
 	"fmt"
+	"io"
 	"reflect"
 
 	"go.uber.org/zap"
@@ -154,13 +155,21 @@ func (dec *Decoder) decodeBin(rv reflect.Value, opt *option) (err error) {
 	}
 	switch rt.Kind() {
 	case reflect.Array:
-		length := rt.Len()
+		l := rt.Len()
 		if traceEnabled {
-			zlog.Debug("decoding: reading array", zap.Int("length", length))
+			zlog.Debug("decoding: reading array", zap.Int("length", l))
 		}
-		for i := 0; i < length; i++ {
-			if err = dec.decodeBin(rv.Index(i), nil); err != nil {
-				return
+
+		switch k := rv.Type().Elem().Kind(); k {
+		case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			if err := reflect_readArrayOfUint_(dec, l, k, rv, LE); err != nil {
+				return err
+			}
+		default:
+			for i := 0; i < l; i++ {
+				if err = dec.decodeBin(rv.Index(i), nil); err != nil {
+					return
+				}
 			}
 		}
 		return
@@ -169,22 +178,37 @@ func (dec *Decoder) decodeBin(rv reflect.Value, opt *option) (err error) {
 		if opt.hasSizeOfSlice() {
 			l = opt.getSizeOfSlice()
 		} else {
-			// TODO: what type is length? Is it really Uvarint64?
-			length, err := dec.ReadUvarint64()
+			length, err := dec.ReadLength()
 			if err != nil {
 				return err
 			}
-			l = int(length)
+			l = length
 		}
 
 		if traceEnabled {
 			zlog.Debug("reading slice", zap.Int("len", l), typeField("type", rv))
 		}
 
-		rv.Set(reflect.MakeSlice(rt, l, l))
-		for i := 0; i < l; i++ {
-			if err = dec.decodeBin(rv.Index(i), nil); err != nil {
-				return
+		if l > dec.Remaining() {
+			return io.ErrUnexpectedEOF
+		}
+
+		switch k := rv.Type().Elem().Kind(); k {
+		case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			if err := reflect_readArrayOfUint_(dec, l, k, rv, LE); err != nil {
+				return err
+			}
+		default:
+			rv.Set(reflect.MakeSlice(rt, 0, 0))
+			for i := 0; i < l; i++ {
+				// create new element of type rt:
+				element := reflect.New(rt.Elem())
+				// decode into element:
+				if err = dec.decodeBin(element, nil); err != nil {
+					return
+				}
+				// append to slice:
+				rv.Set(reflect.Append(rv, element.Elem()))
 			}
 		}
 
@@ -194,8 +218,7 @@ func (dec *Decoder) decodeBin(rv reflect.Value, opt *option) (err error) {
 		}
 
 	case reflect.Map:
-		// TODO: what type is length? Is it really Uvarint64?
-		l, err := dec.ReadUvarint64()
+		l, err := dec.ReadLength()
 		if err != nil {
 			return err
 		}

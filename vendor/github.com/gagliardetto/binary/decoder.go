@@ -141,7 +141,7 @@ func sizeof(t reflect.Type, v reflect.Value) int {
 		}
 		return n
 	default:
-		panic(fmt.Sprintf("sizeof field "))
+		panic(fmt.Sprintf("sizeof field not implemented for kind %s", t.Kind()))
 	}
 }
 
@@ -184,7 +184,6 @@ func (dec *Decoder) ReadVarint32() (out int32, err error) {
 }
 
 func (dec *Decoder) ReadUvarint32() (out uint32, err error) {
-
 	n, err := dec.ReadUvarint64()
 	if err != nil {
 		return out, err
@@ -195,6 +194,7 @@ func (dec *Decoder) ReadUvarint32() (out uint32, err error) {
 	}
 	return
 }
+
 func (dec *Decoder) ReadVarint16() (out int16, err error) {
 	n, err := dec.ReadVarint64()
 	if err != nil {
@@ -208,7 +208,6 @@ func (dec *Decoder) ReadVarint16() (out int16, err error) {
 }
 
 func (dec *Decoder) ReadUvarint16() (out uint16, err error) {
-
 	n, err := dec.ReadUvarint64()
 	if err != nil {
 		return out, err
@@ -245,11 +244,17 @@ func (dec *Decoder) ReadLength() (length int, err error) {
 		if err != nil {
 			return 0, err
 		}
+		if val > 0x7FFF_FFFF {
+			return 0, io.ErrUnexpectedEOF
+		}
 		length = int(val)
 	case EncodingBorsh:
 		val, err := dec.ReadUint32(LE)
 		if err != nil {
 			return 0, err
+		}
+		if val > 0x7FFF_FFFF {
+			return 0, io.ErrUnexpectedEOF
 		}
 		length = int(val)
 	case EncodingCompactU16:
@@ -269,21 +274,37 @@ type peekAbleByteReader interface {
 	Peek(n int) ([]byte, error)
 }
 
-func readNBytes(n int, reader peekAbleByteReader) ([]byte, error) {
-	buf := make([]byte, n)
-	for i := 0; i < n; i++ {
-		b, err := reader.ReadByte()
-		if err != nil {
-			return nil, err
-		}
-		buf[i] = b
+func readNBytes(n int, reader *Decoder) ([]byte, error) {
+	if n == 0 {
+		return make([]byte, 0), nil
 	}
+	if n < 0 || n > 0x7FFF_FFFF {
+		return nil, fmt.Errorf("invalid length n: %v", n)
+	}
+	if reader.pos+n > len(reader.data) {
+		return nil, fmt.Errorf("not enough data: %d bytes missing", reader.pos+n-len(reader.data))
+	}
+	out := reader.data[reader.pos : reader.pos+n]
+	reader.pos += n
+	return out, nil
+}
 
-	return buf, nil
+func discardNBytes(n int, reader *Decoder) error {
+	if n == 0 {
+		return nil
+	}
+	if n < 0 || n > 0x7FFF_FFFF {
+		return fmt.Errorf("invalid length n: %v", n)
+	}
+	return reader.SkipBytes(uint(n))
 }
 
 func (dec *Decoder) ReadNBytes(n int) (out []byte, err error) {
 	return readNBytes(n, dec)
+}
+
+func (dec *Decoder) Discard(n int) (err error) {
+	return discardNBytes(n, dec)
 }
 
 func (dec *Decoder) ReadTypeID() (out TypeID, err error) {
@@ -343,7 +364,6 @@ func (dec *Decoder) ReadBool() (out bool, err error) {
 		zlog.Debug("decode: read bool", zap.Bool("val", out))
 	}
 	return
-
 }
 
 func (dec *Decoder) ReadUint8() (out uint8, err error) {
@@ -437,7 +457,6 @@ func (dec *Decoder) ReadInt128(order binary.ByteOrder) (out Int128, err error) {
 	if err != nil {
 		return
 	}
-
 	return Int128(v), nil
 }
 
@@ -511,7 +530,6 @@ func (dec *Decoder) ReadFloat128(order binary.ByteOrder) (out Float128, err erro
 	if err != nil {
 		return out, fmt.Errorf("float128: %s", err)
 	}
-
 	return Float128(value), nil
 }
 
@@ -544,6 +562,9 @@ func (dec *Decoder) ReadRustString() (out string, err error) {
 	length, err := dec.ReadUint64(binary.LittleEndian)
 	if err != nil {
 		return "", err
+	}
+	if length > 0x7FFF_FFFF {
+		return "", io.ErrUnexpectedEOF
 	}
 	bytes, err := dec.ReadNBytes(int(length))
 	if err != nil {
@@ -666,4 +687,204 @@ func indirect(v reflect.Value, decodingNull bool) (BinaryUnmarshaler, reflect.Va
 		}
 	}
 	return nil, v
+}
+
+func reflect_readArrayOfBytes(d *Decoder, l int, rv reflect.Value) error {
+	buf, err := d.ReadNBytes(l)
+	if err != nil {
+		return err
+	}
+	switch rv.Kind() {
+	case reflect.Array:
+		// if the type of the array is not [n]uint8, but a custom type like [n]CustomUint8:
+		if rv.Type().Elem() != typeOfUint8 {
+			// if the type of the array is not [n]uint8, but a custom type like [n]CustomUint8:
+			// then we need to convert each uint8 to the custom type
+			for i := 0; i < l; i++ {
+				rv.Index(i).Set(reflect.ValueOf(buf[i]).Convert(rv.Index(i).Type()))
+			}
+		} else {
+			reflect.Copy(rv, reflect.ValueOf(buf))
+		}
+	case reflect.Slice:
+		// if the type of the slice is not []uint8, but a custom type like []CustomUint8:
+		if rv.Type().Elem() != typeOfUint8 {
+			// convert the []uint8 to the custom type
+			customSlice := reflect.MakeSlice(rv.Type(), len(buf), len(buf))
+			for i := 0; i < len(buf); i++ {
+				customSlice.Index(i).SetUint(uint64(buf[i]))
+			}
+			rv.Set(customSlice)
+		} else {
+			rv.Set(reflect.ValueOf(buf))
+		}
+	default:
+		return fmt.Errorf("unsupported kind: %s", rv.Kind())
+	}
+	return nil
+}
+
+func reflect_readArrayOfUint16(d *Decoder, l int, rv reflect.Value, order binary.ByteOrder) error {
+	buf := make([]uint16, l)
+	for i := 0; i < l; i++ {
+		n, err := d.ReadUint16(order)
+		if err != nil {
+			return err
+		}
+		buf[i] = n
+	}
+	switch rv.Kind() {
+	case reflect.Array:
+		// if the type of the array is not [n]uint16, but a custom type like [n]CustomUint16:
+		if rv.Type().Elem() != typeOfUint16 {
+			// if the type of the array is not [n]uint16, but a custom type like [n]CustomUint16:
+			// then we need to convert each uint16 to the custom type
+			for i := 0; i < l; i++ {
+				rv.Index(i).Set(reflect.ValueOf(buf[i]).Convert(rv.Index(i).Type()))
+			}
+		} else {
+			reflect.Copy(rv, reflect.ValueOf(buf))
+		}
+	case reflect.Slice:
+		// if the type of the slice is not []uint16, but a custom type like []CustomUint16:
+		if rv.Type().Elem() != typeOfUint16 {
+			// convert the []uint16 to the custom type
+			customSlice := reflect.MakeSlice(rv.Type(), len(buf), len(buf))
+			for i := 0; i < len(buf); i++ {
+				customSlice.Index(i).SetUint(uint64(buf[i]))
+			}
+			rv.Set(customSlice)
+		} else {
+			rv.Set(reflect.ValueOf(buf))
+		}
+	default:
+		return fmt.Errorf("unsupported kind: %s", rv.Kind())
+	}
+	return nil
+}
+
+func reflect_readArrayOfUint32(d *Decoder, l int, rv reflect.Value, order binary.ByteOrder) error {
+	buf := make([]uint32, l)
+	for i := 0; i < l; i++ {
+		n, err := d.ReadUint32(order)
+		if err != nil {
+			return err
+		}
+		buf[i] = n
+	}
+	switch rv.Kind() {
+	case reflect.Array:
+		// if the type of the array is not [n]uint32, but a custom type like [n]CustomUint32:
+		if rv.Type().Elem() != typeOfUint32 {
+			// if the type of the array is not [n]uint32, but a custom type like [n]CustomUint32:
+			// then we need to convert each uint32 to the custom type
+			for i := 0; i < l; i++ {
+				rv.Index(i).Set(reflect.ValueOf(buf[i]).Convert(rv.Index(i).Type()))
+			}
+		} else {
+			reflect.Copy(rv, reflect.ValueOf(buf))
+		}
+	case reflect.Slice:
+		// if the type of the slice is not []uint32, but a custom type like []CustomUint32:
+		if rv.Type().Elem() != typeOfUint32 {
+			// convert the []uint32 to the custom type
+			customSlice := reflect.MakeSlice(rv.Type(), len(buf), len(buf))
+			for i := 0; i < len(buf); i++ {
+				customSlice.Index(i).SetUint(uint64(buf[i]))
+			}
+			rv.Set(customSlice)
+		} else {
+			rv.Set(reflect.ValueOf(buf))
+		}
+	default:
+		return fmt.Errorf("unsupported kind: %s", rv.Kind())
+	}
+	return nil
+}
+
+func init() {
+	if typeOfByte != typeOfUint8 {
+		panic("typeOfByte != typeOfUint8")
+	}
+}
+
+var (
+	typeOfByte   = reflect.TypeOf(byte(0))
+	typeOfUint8  = reflect.TypeOf(uint8(0))
+	typeOfUint16 = reflect.TypeOf(uint16(0))
+	typeOfUint32 = reflect.TypeOf(uint32(0))
+	typeOfUint64 = reflect.TypeOf(uint64(0))
+)
+
+func reflect_readArrayOfUint64(d *Decoder, l int, rv reflect.Value, order binary.ByteOrder) error {
+	buf := make([]uint64, l)
+	for i := 0; i < l; i++ {
+		n, err := d.ReadUint64(order)
+		if err != nil {
+			return err
+		}
+		buf[i] = n
+	}
+	switch rv.Kind() {
+	case reflect.Array:
+		// if the type of the array is not [n]uint64, but a custom type like [n]CustomUint64:
+		if rv.Type().Elem() != typeOfUint64 {
+			// if the type of the array is not [n]uint64, but a custom type like [n]CustomUint64:
+			// then we need to convert each uint64 to the custom type
+			for i := 0; i < l; i++ {
+				rv.Index(i).Set(reflect.ValueOf(buf[i]).Convert(rv.Index(i).Type()))
+			}
+		} else {
+			reflect.Copy(rv, reflect.ValueOf(buf))
+		}
+	case reflect.Slice:
+		// if the type of the slice is not []uint64, but a custom type like []CustomUint64:
+		if rv.Type().Elem() != typeOfUint64 {
+			// convert the []uint64 to the custom type
+			customSlice := reflect.MakeSlice(rv.Type(), len(buf), len(buf))
+			for i := 0; i < len(buf); i++ {
+				customSlice.Index(i).SetUint(uint64(buf[i]))
+			}
+			rv.Set(customSlice)
+		} else {
+			rv.Set(reflect.ValueOf(buf))
+		}
+	default:
+		return fmt.Errorf("unsupported kind: %s", rv.Kind())
+	}
+	return nil
+}
+
+// reflect_readArrayOfUint_ is used for reading arrays/slices of uints of any size.
+func reflect_readArrayOfUint_(d *Decoder, l int, k reflect.Kind, rv reflect.Value, order binary.ByteOrder) error {
+	switch k {
+	// case reflect.Uint:
+	// 	// switch on system architecture (32 or 64 bit)
+	// 	if unsafe.Sizeof(uintptr(0)) == 4 {
+	// 		return reflect_readArrayOfUint32(  d, l, rv, order)
+	// 	}
+	// 	return reflect_readArrayOfUint64(  d, l, rv, order)
+	case reflect.Uint8:
+		if l > d.Remaining() {
+			return io.ErrUnexpectedEOF
+		}
+		return reflect_readArrayOfBytes(d, l, rv)
+	case reflect.Uint16:
+		if l*2 > d.Remaining() {
+			return io.ErrUnexpectedEOF
+		}
+		return reflect_readArrayOfUint16(d, l, rv, order)
+	case reflect.Uint32:
+		if l*4 > d.Remaining() {
+			return io.ErrUnexpectedEOF
+		}
+		return reflect_readArrayOfUint32(d, l, rv, order)
+	case reflect.Uint64:
+		if l*8 > d.Remaining() {
+			return io.ErrUnexpectedEOF
+		}
+		return reflect_readArrayOfUint64(d, l, rv, order)
+	default:
+		return fmt.Errorf("unsupported kind: %v", k)
+	}
 }

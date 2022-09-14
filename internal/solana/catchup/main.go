@@ -74,12 +74,14 @@ func (s *Service) catchupFrom(ctx context.Context, start solana.Signature) (sola
 		s.log.Debug("Checking tx: " + sig.Signature.String())
 		tx, err := s.parser.GetTransaction(ctx, sig.Signature)
 		if err != nil {
-			return solana.Signature{}, errors.Wrap(err, "failed to get transaction "+sig.Signature.String())
+			s.log.WithError(err).Error("failed to get transaction " + sig.Signature.String())
+			continue
 		}
 
 		err = s.parser.ParseTransaction(sig.Signature, tx)
 		if err != nil {
-			return solana.Signature{}, errors.Wrap(err, "failed to process transaction "+sig.Signature.String())
+			s.log.WithError(err).Error("failed to process transaction " + sig.Signature.String())
+			continue
 		}
 
 		if s.fromTx.Equals(sig.Signature) {
