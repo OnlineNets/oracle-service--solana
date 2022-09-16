@@ -31,12 +31,12 @@ shell:
 image: service
 from: alpine:3.14.6
 docker:
-  ENTRYPOINT: sol-saver
+  ENTRYPOINT: sol-saver-svc
 shell:
   setup:
     - apk add --no-cache ca-certificates
 import:
   - image: builder
-    add: /usr/local/bin/sol-saver
-    to: /usr/local/bin/sol-saver
+    add: /usr/local/bin/sol-saver-svc
+    to: /usr/local/bin/sol-saver-svc
     after: setup
