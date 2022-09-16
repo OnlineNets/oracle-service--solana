@@ -4,10 +4,10 @@ project: "backend"
 image: builder
 from: golang:1.17-alpine
 docker:
-  WORKDIR: /go/src/sol-saver-svc
+  WORKDIR: /go/src/gitlab.com/rarify-protocol/sol-saver-svc
 git:
   - add: /
-    to: /go/src/sol-saver-svc
+    to: /go/src/gitlab.com/rarify-protocol/sol-saver-svc
     stageDependencies:
       install:
         - go.mod
@@ -19,13 +19,13 @@ shell:
     - apk add git build-base
     - git config --global url."https://gitlab-ci-token:{{ env "CI_JOB_TOKEN" }}@gitlab.com/".insteadOf https://gitlab.com/
     - go env -w GOPRIVATE=gitlab.com/*
-    - cd /go/src/sol-saver-svc
+    - cd /go/src/gitlab.com/rarify-protocol/sol-saver-svc
     - go mod download all
   setup:
     - export CGO_ENABLED=0
     - export GO111MODULE=off
     - export GOOS=linux
-    - go build  -o /usr/local/bin/sol-saver-svc /go/src/sol-saver-svc
+    - go build  -o /usr/local/bin/sol-saver-svc /go/src/gitlab.com/rarify-protocol/sol-saver-svc
 
 ---
 image: service
