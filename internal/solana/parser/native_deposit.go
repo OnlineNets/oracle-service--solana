@@ -25,8 +25,8 @@ func NewNativeParser(cfg config.Config) *nativeParser {
 
 var _ Parser = &nativeParser{}
 
-func (n *nativeParser) ParseTransaction(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction) error {
-	n.log.Info("Found new native deposit in tx: " + tx.String())
+func (n *nativeParser) ParseTransaction(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction, instructionId uint32) error {
+	n.log.Infof("Found new native deposit in tx: %s id: %d", tx.String(), instructionId)
 	var args contract.DepositNativeArgs
 
 	err := borsh.Deserialize(&args, instruction.Data)
@@ -35,8 +35,8 @@ func (n *nativeParser) ParseTransaction(tx solana.Signature, accounts []solana.P
 	}
 
 	entry := data.NativeDeposit{
-		Id:            0,
 		Hash:          tx.String(),
+		InstructionId: instructionId,
 		Sender:        accounts[contract.DepositNativeOwnerIndex].String(),
 		Receiver:      args.ReceiverAddress,
 		TargetNetwork: args.NetworkTo,

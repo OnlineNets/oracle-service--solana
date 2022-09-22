@@ -31,8 +31,8 @@ func NewNFTParser(cfg config.Config) *nftParser {
 
 var _ Parser = &nftParser{}
 
-func (f *nftParser) ParseTransaction(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction) error {
-	f.log.Info("Found new nft deposit in tx: " + tx.String())
+func (f *nftParser) ParseTransaction(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction, instructionId uint32) error {
+	f.log.Infof("Found new nft deposit in tx: %s id: %d", tx.String(), instructionId)
 	var args contract.DepositNFTArgs
 
 	err := borsh.Deserialize(&args, instruction.Data)
@@ -47,6 +47,7 @@ func (f *nftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publ
 
 	entry := data.NFTDeposit{
 		Hash:          tx.String(),
+		InstructionId: instructionId,
 		Sender:        accounts[contract.DepositNFTOwnerIndex].String(),
 		Receiver:      args.ReceiverAddress,
 		TargetNetwork: args.NetworkTo,
