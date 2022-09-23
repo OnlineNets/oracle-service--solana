@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine as buildbase
+FROM golang:1.18-alpine as buildbase
 
 WORKDIR /go/src/gitlab.com/rarify-protocol/sol-saver-svc
 COPY vendor .
