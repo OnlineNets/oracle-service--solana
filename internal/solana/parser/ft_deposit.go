@@ -25,8 +25,8 @@ func NewFTParser(cfg config.Config) *ftParser {
 
 var _ Parser = &ftParser{}
 
-func (f *ftParser) ParseTransaction(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction) error {
-	f.log.Info("Found new ft deposit in tx: " + tx.String())
+func (f *ftParser) ParseTransaction(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction, instructionId uint32) error {
+	f.log.Infof("Found new ft deposit in tx: %s id: %d", tx.String(), instructionId)
 	var args contract.DepositFTArgs
 
 	err := borsh.Deserialize(&args, instruction.Data)
@@ -36,6 +36,7 @@ func (f *ftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publi
 
 	entry := data.FTDeposit{
 		Hash:          tx.String(),
+		InstructionId: instructionId,
 		Sender:        accounts[contract.DepositFTOwnerIndex].String(),
 		Receiver:      args.ReceiverAddress,
 		TargetNetwork: args.NetworkTo,

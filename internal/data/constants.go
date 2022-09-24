@@ -7,5 +7,6 @@ const (
 )
 
 const (
-	HashColumnName = "hash"
+	HashColumnName          = "hash"
+	InstructionIdColumnName = "instruction_id"
 )

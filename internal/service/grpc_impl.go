@@ -60,7 +60,10 @@ func (s *SaverService) GetDepositInfo(ctx context.Context, request *lib.MsgTrans
 
 func (s *SaverService) getNativeDeposit(request *lib.MsgTransactionInfoRequest) (*lib.MsgDepositResponse, error) {
 	entry := data.NativeDeposit{}
-	ok, err := s.nativeDeposits.Clone().FilterByColumn(data.HashColumnName, request.Hash).Get(&entry)
+	ok, err := s.nativeDeposits.Clone().
+		FilterByColumn(data.HashColumnName, request.Hash).
+		FilterByColumn(data.InstructionIdColumnName, request.EventId).
+		Get(&entry)
 	if err != nil {
 		s.log.WithError(err).Error("error getting database entry")
 		return nil, status.Errorf(codes.Internal, "Internal error")
@@ -80,7 +83,10 @@ func (s *SaverService) getNativeDeposit(request *lib.MsgTransactionInfoRequest) 
 
 func (s *SaverService) getFTDeposit(request *lib.MsgTransactionInfoRequest) (*lib.MsgDepositResponse, error) {
 	entry := data.FTDeposit{}
-	ok, err := s.ftDeposits.Clone().FilterByColumn(data.HashColumnName, request.Hash).Get(&entry)
+	ok, err := s.ftDeposits.Clone().
+		FilterByColumn(data.HashColumnName, request.Hash).
+		FilterByColumn(data.InstructionIdColumnName, request.EventId).
+		Get(&entry)
 	if err != nil {
 		s.log.WithError(err).Error("error getting database entry")
 		return nil, status.Errorf(codes.Internal, "Internal error")
@@ -101,7 +107,11 @@ func (s *SaverService) getFTDeposit(request *lib.MsgTransactionInfoRequest) (*li
 
 func (s *SaverService) getNFTDeposit(request *lib.MsgTransactionInfoRequest) (*lib.MsgDepositResponse, error) {
 	entry := data.NFTDeposit{}
-	ok, err := s.nftDeposits.Clone().FilterByColumn(data.HashColumnName, request.Hash).Get(&entry)
+	ok, err := s.nftDeposits.Clone().
+		FilterByColumn(data.HashColumnName, request.Hash).
+		FilterByColumn(data.InstructionIdColumnName, request.EventId).
+		Get(&entry)
+
 	if err != nil {
 		s.log.WithError(err).Error("error getting database entry")
 		return nil, status.Errorf(codes.Internal, "Internal error")
