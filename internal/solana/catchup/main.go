@@ -37,7 +37,7 @@ func NewService(cfg config.Config) *Service {
 // Catchup will list all transactions from last to specified in config and stored in l.fromTx
 func (s *Service) Catchup(ctx context.Context) error {
 	s.log.Info("Starting catchup")
-	if s.disabled {
+	if s.disabled || s.fromTx.Equals(solana.Signature{}) {
 		return nil
 	}
 
