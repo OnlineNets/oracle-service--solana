@@ -47,6 +47,7 @@ func (s *SaverService) Run() error {
 var _ lib.SaverServer = &SaverService{}
 
 func (s *SaverService) GetDepositInfo(ctx context.Context, request *lib.MsgTransactionInfoRequest) (*lib.MsgDepositResponse, error) {
+	s.log.Infof("[GET DEPOSIT] request: hash=%s event_id=%s token_type=%d", request.Hash, request.EventId, request.Type)
 	switch TokenType(request.Type) {
 	case TypeNative:
 		return s.getNativeDeposit(request)
