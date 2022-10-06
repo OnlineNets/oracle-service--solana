@@ -611,6 +611,8 @@ gitlab.com/rarify-protocol/solana-program-go v0.0.0-20221004172313-3d1a62e47127 
 gitlab.com/rarify-protocol/solana-program-go v0.0.0-20221004172313-3d1a62e47127/go.mod h1:npsY6n21zwESOjCT74E4vwwvHEdYL2t8JAZ1PzFHaes=
 gitlab.com/rarify-protocol/solana-program-go v0.0.0-20221004173344-e9e455f35a95 h1:UIVpbSOUURKfAfAdMA2m+JQK0GDyDVlu5H3nTVKycbE=
 gitlab.com/rarify-protocol/solana-program-go v0.0.0-20221004173344-e9e455f35a95/go.mod h1:npsY6n21zwESOjCT74E4vwwvHEdYL2t8JAZ1PzFHaes=
+gitlab.com/rarify-protocol/solana-program-go v0.0.0-20221006113253-751d6afc8440 h1:RJokWAwCcyg/rBuDD/IJp9u9ZrtIi4jeViHvxfFuyZM=
+gitlab.com/rarify-protocol/solana-program-go v0.0.0-20221006113253-751d6afc8440/go.mod h1:8Qy8BBb2NVVkvjLaO56HvgcEDe9mZ9jg0Z0O1pTI9mI=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/etcd/api/v3 v3.5.0/go.mod h1:cbVKeC6lCfl7j/8jBhAK6aIYO9XOjdptoxU/nLQcPvs=
 go.etcd.io/etcd/client/pkg/v3 v3.5.0/go.mod h1:IJHfcCEKxYu1Os13ZdwCwIUTUVGYTSAM3YSwc9/Ac1g=

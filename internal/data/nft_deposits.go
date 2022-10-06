@@ -9,4 +9,6 @@ type NFTDeposit struct {
 	TargetNetwork string `db:"target_network" structs:"target_network"`
 	Mint          string `db:"mint" structs:"mint"`
 	Collection    string `db:"collection" structs:"collection"`
+	BundleData    string `db:"bundle_data" structs:"bundle_data"`
+	BundleSeed    string `db:"bundle_seed" structs:"bundle_seed"`
 }

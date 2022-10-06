@@ -8,10 +8,12 @@ create table native_deposits
     sender         text                  not null,
     receiver       text                  not null,
     target_network text                  not null,
-    amount         bigint                not null
+    amount         bigint                not null,
+    bundle_data    text,
+    bundle_seed    text
 );
 
-create unique index native_index on native_deposits(hash, instruction_id);
+create unique index native_index on native_deposits (hash, instruction_id);
 
 create table ft_deposits
 (
@@ -22,10 +24,12 @@ create table ft_deposits
     receiver       text                  not null,
     target_network text                  not null,
     amount         bigint                not null,
-    mint           text                  not null
+    mint           text                  not null,
+    bundle_data    text,
+    bundle_seed    text
 );
 
-create unique index ft_index on ft_deposits(hash, instruction_id);
+create unique index ft_index on ft_deposits (hash, instruction_id);
 
 create table nft_deposits
 (
@@ -36,10 +40,12 @@ create table nft_deposits
     receiver       text                  not null,
     target_network text                  not null,
     mint           text                  not null,
-    collection     text
+    collection     text,
+    bundle_data    text,
+    bundle_seed    text
 );
 
-create unique index nft_index on nft_deposits(hash, instruction_id);
+create unique index nft_index on nft_deposits (hash, instruction_id);
 
 -- +migrate Down
 drop table native_deposits;

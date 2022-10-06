@@ -79,6 +79,8 @@ func (s *SaverService) getNativeDeposit(request *lib.MsgTransactionInfoRequest) 
 		Sender:        hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Sender).Bytes()),
 		Receiver:      entry.Receiver,
 		Amount:        fmt.Sprint(entry.Amount),
+		BundleData:    entry.BundleData,
+		BundleSalt:    entry.BundleSeed,
 	}, nil
 }
 
@@ -103,6 +105,8 @@ func (s *SaverService) getFTDeposit(request *lib.MsgTransactionInfoRequest) (*li
 		Receiver:      entry.Receiver,
 		Amount:        fmt.Sprint(entry.Amount),
 		TokenAddress:  hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Mint).Bytes()),
+		BundleData:    entry.BundleData,
+		BundleSalt:    entry.BundleSeed,
 	}, nil
 }
 
@@ -128,5 +132,7 @@ func (s *SaverService) getNFTDeposit(request *lib.MsgTransactionInfoRequest) (*l
 		Receiver:      entry.Receiver,
 		TokenAddress:  hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Collection).Bytes()),
 		TokenId:       hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Mint).Bytes()),
+		BundleData:    entry.BundleData,
+		BundleSalt:    entry.BundleSeed,
 	}, nil
 }

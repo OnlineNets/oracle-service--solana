@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/near/borsh-go"
 	pg_dao "github.com/olegfomenko/pg-dao"
 	"github.com/olegfomenko/solana-go"
@@ -41,6 +42,11 @@ func (n *nativeParser) ParseTransaction(tx solana.Signature, accounts []solana.P
 		Receiver:      args.ReceiverAddress,
 		TargetNetwork: args.NetworkTo,
 		Amount:        args.Amount,
+	}
+
+	if args.BundleData != nil && args.BundleSeed != nil {
+		entry.BundleData = hexutil.Encode(*args.BundleData)
+		entry.BundleSeed = hexutil.Encode((*args.BundleSeed)[:])
 	}
 
 	_, err = n.dao.Clone().Create(entry)

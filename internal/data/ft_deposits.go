@@ -9,4 +9,6 @@ type FTDeposit struct {
 	TargetNetwork string `db:"target_network" structs:"target_network"`
 	Amount        uint64 `db:"amount" structs:"amount"`
 	Mint          string `db:"mint" structs:"mint"`
+	BundleData    string `db:"bundle_data" structs:"bundle_data"`
+	BundleSeed    string `db:"bundle_seed" structs:"bundle_seed"`
 }
