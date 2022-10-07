@@ -1,32 +1,34 @@
 package parser
 
 import (
+	"database/sql"
+
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/near/borsh-go"
-	pg_dao "github.com/olegfomenko/pg-dao"
 	"github.com/olegfomenko/solana-go"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data"
+	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data/pg"
 	"gitlab.com/rarify-protocol/solana-program-go/contract"
 )
 
 type ftParser struct {
-	log *logan.Entry
-	dao pg_dao.DAO
+	log     *logan.Entry
+	storage *pg.Storage
 }
 
 func NewFTParser(cfg config.Config) *ftParser {
 	return &ftParser{
-		log: cfg.Log(),
-		dao: pg_dao.NewDAO(cfg.DB(), data.FTDepositsTableName),
+		log:     cfg.Log(),
+		storage: cfg.Storage(),
 	}
 }
 
 var _ Parser = &ftParser{}
 
-func (f *ftParser) ParseTransaction(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction, instructionId uint32) error {
+func (f *ftParser) ParseTransaction(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction, instructionId int) error {
 	f.log.Infof("Found new ft deposit in tx: %s id: %d", tx.String(), instructionId)
 	var args contract.DepositFTArgs
 
@@ -35,21 +37,20 @@ func (f *ftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publi
 		return errors.Wrap(err, "error deserializing instruction data")
 	}
 
-	entry := data.FTDeposit{
+	entry := &data.FtDeposit{
 		Hash:          tx.String(),
-		InstructionId: instructionId,
+		InstructionID: instructionId,
 		Sender:        accounts[contract.DepositFTOwnerIndex].String(),
 		Receiver:      args.ReceiverAddress,
 		TargetNetwork: args.NetworkTo,
-		Amount:        args.Amount,
+		Amount:        int64(args.Amount),
 		Mint:          accounts[contract.DepositFTMintIndex].String(),
 	}
 
 	if args.BundleData != nil && args.BundleSeed != nil {
-		entry.BundleData = hexutil.Encode(*args.BundleData)
-		entry.BundleSeed = hexutil.Encode((*args.BundleSeed)[:])
+		entry.BundleData = sql.NullString{String: hexutil.Encode(*args.BundleData), Valid: true}
+		entry.BundleData = sql.NullString{String: hexutil.Encode((*args.BundleSeed)[:]), Valid: true}
 	}
 
-	_, err = f.dao.Clone().Create(entry)
-	return err
+	return f.storage.Clone().FtDepositQ().Insert(entry)
 }

@@ -15,7 +15,7 @@ import (
 const DataInstructionCodeIndex = 0
 
 type Parser interface {
-	ParseTransaction(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction, instructionId uint32) error
+	ParseTransaction(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction, instructionId int) error
 }
 
 type Service struct {
@@ -60,7 +60,7 @@ func (s *Service) ParseTransaction(sig solana.Signature, tx *solana.Transaction)
 	for index, instruction := range tx.Message.Instructions {
 		if accounts[instruction.ProgramIDIndex] == s.program {
 			if parser, ok := s.parsers[contract.Instruction(instruction.Data[DataInstructionCodeIndex])]; ok {
-				err := parser.ParseTransaction(sig, getInstructionAccounts(accounts, instruction.Accounts), instruction, uint32(index))
+				err := parser.ParseTransaction(sig, getInstructionAccounts(accounts, instruction.Accounts), instruction, index)
 				if err != nil {
 					return err
 				}

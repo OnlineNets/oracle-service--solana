@@ -2,37 +2,38 @@ package parser
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/near/borsh-go"
-	pg_dao "github.com/olegfomenko/pg-dao"
 	"github.com/olegfomenko/solana-go"
 	"github.com/olegfomenko/solana-go/rpc"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data"
+	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data/pg"
 	"gitlab.com/rarify-protocol/solana-program-go/contract"
 	"gitlab.com/rarify-protocol/solana-program-go/metaplex"
 )
 
 type nftParser struct {
-	log    *logan.Entry
-	dao    pg_dao.DAO
-	solana *rpc.Client
+	log     *logan.Entry
+	storage *pg.Storage
+	solana  *rpc.Client
 }
 
 func NewNFTParser(cfg config.Config) *nftParser {
 	return &nftParser{
-		log:    cfg.Log(),
-		dao:    pg_dao.NewDAO(cfg.DB(), data.NFTDepositsTableName),
-		solana: cfg.SolanaRPC(),
+		log:     cfg.Log(),
+		storage: cfg.Storage(),
+		solana:  cfg.SolanaRPC(),
 	}
 }
 
 var _ Parser = &nftParser{}
 
-func (f *nftParser) ParseTransaction(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction, instructionId uint32) error {
+func (f *nftParser) ParseTransaction(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction, instructionId int) error {
 	f.log.Infof("Found new nft deposit in tx: %s id: %d", tx.String(), instructionId)
 	var args contract.DepositNFTArgs
 
@@ -46,23 +47,22 @@ func (f *nftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publ
 		return errors.Wrap(err, "error getting token collection")
 	}
 
-	entry := data.NFTDeposit{
+	entry := &data.NftDeposit{
 		Hash:          tx.String(),
-		InstructionId: instructionId,
+		InstructionID: instructionId,
 		Sender:        accounts[contract.DepositNFTOwnerIndex].String(),
 		Receiver:      args.ReceiverAddress,
 		TargetNetwork: args.NetworkTo,
 		Mint:          accounts[contract.DepositNFTMintIndex].String(),
-		Collection:    collection,
+		Collection:    sql.NullString{String: collection, Valid: collection != ""},
 	}
 
 	if args.BundleData != nil && args.BundleSeed != nil {
-		entry.BundleData = hexutil.Encode(*args.BundleData)
-		entry.BundleSeed = hexutil.Encode((*args.BundleSeed)[:])
+		entry.BundleData = sql.NullString{String: hexutil.Encode(*args.BundleData), Valid: true}
+		entry.BundleData = sql.NullString{String: hexutil.Encode((*args.BundleSeed)[:]), Valid: true}
 	}
 
-	_, err = f.dao.Clone().Create(entry)
-	return err
+	return f.storage.NftDepositQ().Insert(entry)
 }
 
 func (f *nftParser) getTokenCollectionAddress(mint solana.PublicKey) (string, error) {

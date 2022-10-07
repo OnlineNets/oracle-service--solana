@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/gagliardetto/solana-go"
-	pg_dao "github.com/olegfomenko/pg-dao"
 	"gitlab.com/distributed_lab/logan/v3"
 	lib "gitlab.com/rarify-protocol/saver-grpc-lib/grpc"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data"
+	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data/pg"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -19,20 +19,16 @@ import (
 
 type SaverService struct {
 	lib.UnimplementedSaverServer
-	log            *logan.Entry
-	nativeDeposits pg_dao.DAO
-	ftDeposits     pg_dao.DAO
-	nftDeposits    pg_dao.DAO
-	listener       net.Listener
+	log      *logan.Entry
+	storage  *pg.Storage
+	listener net.Listener
 }
 
 func NewSaverService(cfg config.Config) *SaverService {
 	return &SaverService{
-		log:            cfg.Log(),
-		nativeDeposits: pg_dao.NewDAO(cfg.DB(), data.NativeDepositsTableName),
-		ftDeposits:     pg_dao.NewDAO(cfg.DB(), data.FTDepositsTableName),
-		nftDeposits:    pg_dao.NewDAO(cfg.DB(), data.NFTDepositsTableName),
-		listener:       cfg.Listener(),
+		log:      cfg.Log(),
+		storage:  cfg.Storage(),
+		listener: cfg.Listener(),
 	}
 }
 
@@ -48,29 +44,31 @@ var _ lib.SaverServer = &SaverService{}
 
 func (s *SaverService) GetDepositInfo(ctx context.Context, request *lib.MsgTransactionInfoRequest) (*lib.MsgDepositResponse, error) {
 	s.log.Infof("[GET DEPOSIT] request: hash=%s event_id=%s token_type=%d", request.Hash, request.EventId, request.Type)
+
+	instructionId, err := strconv.Atoi(request.EventId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Wrong event id format")
+	}
+
 	switch TokenType(request.Type) {
 	case TypeNative:
-		return s.getNativeDeposit(request)
+		return s.getNativeDeposit(ctx, request.Hash, instructionId)
 	case TypeFT:
-		return s.getFTDeposit(request)
+		return s.getFTDeposit(ctx, request.Hash, instructionId)
 	case TypeNFT:
-		return s.getNFTDeposit(request)
+		return s.getNFTDeposit(ctx, request.Hash, instructionId)
 	}
 	return nil, status.Errorf(codes.InvalidArgument, "Wrong token type")
 }
 
-func (s *SaverService) getNativeDeposit(request *lib.MsgTransactionInfoRequest) (*lib.MsgDepositResponse, error) {
-	entry := data.NativeDeposit{}
-	ok, err := s.nativeDeposits.Clone().
-		FilterByColumn(data.HashColumnName, request.Hash).
-		FilterByColumn(data.InstructionIdColumnName, request.EventId).
-		Get(&entry)
+func (s *SaverService) getNativeDeposit(ctx context.Context, hash string, instructionId int) (*lib.MsgDepositResponse, error) {
+	entry, err := s.storage.Clone().NativeDepositQ().NativeDepositByHashInstructionIDCtx(ctx, hash, instructionId, false)
 	if err != nil {
 		s.log.WithError(err).Error("error getting database entry")
 		return nil, status.Errorf(codes.Internal, "Internal error")
 	}
 
-	if !ok {
+	if entry == nil {
 		return nil, status.Errorf(codes.NotFound, "Deposit not found")
 	}
 
@@ -79,23 +77,19 @@ func (s *SaverService) getNativeDeposit(request *lib.MsgTransactionInfoRequest) 
 		Sender:        hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Sender).Bytes()),
 		Receiver:      entry.Receiver,
 		Amount:        fmt.Sprint(entry.Amount),
-		BundleData:    entry.BundleData,
-		BundleSalt:    entry.BundleSeed,
+		BundleData:    entry.BundleData.String,
+		BundleSalt:    entry.BundleSeed.String,
 	}, nil
 }
 
-func (s *SaverService) getFTDeposit(request *lib.MsgTransactionInfoRequest) (*lib.MsgDepositResponse, error) {
-	entry := data.FTDeposit{}
-	ok, err := s.ftDeposits.Clone().
-		FilterByColumn(data.HashColumnName, request.Hash).
-		FilterByColumn(data.InstructionIdColumnName, request.EventId).
-		Get(&entry)
+func (s *SaverService) getFTDeposit(ctx context.Context, hash string, instructionId int) (*lib.MsgDepositResponse, error) {
+	entry, err := s.storage.Clone().FtDepositQ().FtDepositByHashInstructionIDCtx(ctx, hash, instructionId, false)
 	if err != nil {
 		s.log.WithError(err).Error("error getting database entry")
 		return nil, status.Errorf(codes.Internal, "Internal error")
 	}
 
-	if !ok {
+	if entry == nil {
 		return nil, status.Errorf(codes.NotFound, "Deposit not found")
 	}
 
@@ -105,34 +99,34 @@ func (s *SaverService) getFTDeposit(request *lib.MsgTransactionInfoRequest) (*li
 		Receiver:      entry.Receiver,
 		Amount:        fmt.Sprint(entry.Amount),
 		TokenAddress:  hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Mint).Bytes()),
-		BundleData:    entry.BundleData,
-		BundleSalt:    entry.BundleSeed,
+		BundleData:    entry.BundleData.String,
+		BundleSalt:    entry.BundleSeed.String,
 	}, nil
 }
 
-func (s *SaverService) getNFTDeposit(request *lib.MsgTransactionInfoRequest) (*lib.MsgDepositResponse, error) {
-	entry := data.NFTDeposit{}
-	ok, err := s.nftDeposits.Clone().
-		FilterByColumn(data.HashColumnName, request.Hash).
-		FilterByColumn(data.InstructionIdColumnName, request.EventId).
-		Get(&entry)
-
+func (s *SaverService) getNFTDeposit(ctx context.Context, hash string, instructionId int) (*lib.MsgDepositResponse, error) {
+	entry, err := s.storage.Clone().NftDepositQ().NftDepositByHashInstructionIDCtx(ctx, hash, instructionId, false)
 	if err != nil {
 		s.log.WithError(err).Error("error getting database entry")
 		return nil, status.Errorf(codes.Internal, "Internal error")
 	}
 
-	if !ok {
+	if entry == nil {
 		return nil, status.Errorf(codes.NotFound, "Deposit not found")
+	}
+
+	collection := ""
+	if entry.Collection.Valid {
+		collection = hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Collection.String).Bytes())
 	}
 
 	return &lib.MsgDepositResponse{
 		TargetNetwork: entry.TargetNetwork,
 		Sender:        hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Sender).Bytes()),
 		Receiver:      entry.Receiver,
-		TokenAddress:  hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Collection).Bytes()),
+		TokenAddress:  collection,
 		TokenId:       hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Mint).Bytes()),
-		BundleData:    entry.BundleData,
-		BundleSalt:    entry.BundleSeed,
+		BundleData:    entry.BundleData.String,
+		BundleSalt:    entry.BundleSeed.String,
 	}, nil
 }
