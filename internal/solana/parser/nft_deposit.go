@@ -42,6 +42,10 @@ func (f *nftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publ
 		return errors.Wrap(err, "error deserializing instruction data")
 	}
 
+	if _, err := hexutil.Decode(args.ReceiverAddress); err != nil {
+		return errors.Wrap(err, "error parsing receiver address")
+	}
+
 	collection, err := f.getTokenCollectionAddress(accounts[contract.DepositNFTMintIndex])
 	if err != nil {
 		return errors.Wrap(err, "error getting token collection")
@@ -53,7 +57,7 @@ func (f *nftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publ
 		Sender:        accounts[contract.DepositNFTOwnerIndex].String(),
 		Receiver:      args.ReceiverAddress,
 		TargetNetwork: args.NetworkTo,
-		Mint:          accounts[contract.DepositNFTMintIndex].String(),
+		Mint:          hexutil.Encode(accounts[contract.DepositNFTMintIndex].Bytes()),
 		Collection:    sql.NullString{String: collection, Valid: collection != ""},
 	}
 
@@ -86,5 +90,5 @@ func (f *nftParser) getTokenCollectionAddress(mint solana.PublicKey) (string, er
 		return "", nil
 	}
 
-	return metadata.Collection.Address.String(), nil
+	return hexutil.Encode(metadata.Collection.Address.Bytes()), nil
 }

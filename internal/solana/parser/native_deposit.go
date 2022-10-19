@@ -37,6 +37,10 @@ func (n *nativeParser) ParseTransaction(tx solana.Signature, accounts []solana.P
 		return errors.Wrap(err, "error deserializing instruction data")
 	}
 
+	if _, err := hexutil.Decode(args.ReceiverAddress); err != nil {
+		return errors.Wrap(err, "error parsing receiver address")
+	}
+
 	entry := &data.NativeDeposit{
 		Hash:          tx.String(),
 		InstructionID: instructionId,
