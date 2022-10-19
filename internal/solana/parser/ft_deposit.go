@@ -37,18 +37,17 @@ func (f *ftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publi
 		return errors.Wrap(err, "error deserializing instruction data")
 	}
 
-	if _, err := hexutil.Decode(args.ReceiverAddress); err != nil {
-		return errors.Wrap(err, "error parsing receiver address")
-	}
-
 	entry := &data.FtDeposit{
 		Hash:          tx.String(),
 		InstructionID: instructionId,
-		Sender:        accounts[contract.DepositFTOwnerIndex].String(),
-		Receiver:      args.ReceiverAddress,
 		TargetNetwork: args.NetworkTo,
-		Amount:        int64(args.Amount),
-		Mint:          accounts[contract.DepositFTMintIndex].String(),
+
+		Amount: int64(args.Amount),
+
+		Receiver: args.ReceiverAddress,
+
+		Sender: hexutil.Encode(accounts[contract.DepositFTOwnerIndex].Bytes()),
+		Mint:   hexutil.Encode(accounts[contract.DepositFTMintIndex].Bytes()),
 	}
 
 	if args.BundleData != nil && args.BundleSeed != nil {

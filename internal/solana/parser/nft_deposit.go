@@ -54,11 +54,13 @@ func (f *nftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publ
 	entry := &data.NftDeposit{
 		Hash:          tx.String(),
 		InstructionID: instructionId,
-		Sender:        accounts[contract.DepositNFTOwnerIndex].String(),
-		Receiver:      args.ReceiverAddress,
 		TargetNetwork: args.NetworkTo,
-		Mint:          hexutil.Encode(accounts[contract.DepositNFTMintIndex].Bytes()),
-		Collection:    sql.NullString{String: collection, Valid: collection != ""},
+
+		Receiver: args.ReceiverAddress,
+
+		Mint:       hexutil.Encode(accounts[contract.DepositNFTMintIndex].Bytes()),
+		Sender:     hexutil.Encode(accounts[contract.DepositNFTOwnerIndex].Bytes()),
+		Collection: sql.NullString{String: collection, Valid: collection != ""},
 	}
 
 	if args.BundleData != nil && args.BundleSeed != nil {
