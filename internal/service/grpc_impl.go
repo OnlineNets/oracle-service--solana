@@ -74,7 +74,7 @@ func (s *SaverService) getNativeDeposit(ctx context.Context, hash string, instru
 
 	return &lib.MsgDepositResponse{
 		TargetNetwork: entry.TargetNetwork,
-		Sender:        hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Sender).Bytes()),
+		Sender:        entry.Sender,
 		Receiver:      entry.Receiver,
 		Amount:        fmt.Sprint(entry.Amount),
 		BundleData:    entry.BundleData.String,
@@ -95,10 +95,10 @@ func (s *SaverService) getFTDeposit(ctx context.Context, hash string, instructio
 
 	return &lib.MsgDepositResponse{
 		TargetNetwork: entry.TargetNetwork,
-		Sender:        hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Sender).Bytes()),
+		Sender:        entry.Sender,
 		Receiver:      entry.Receiver,
 		Amount:        fmt.Sprint(entry.Amount),
-		TokenAddress:  hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Mint).Bytes()),
+		TokenAddress:  entry.Mint,
 		BundleData:    entry.BundleData.String,
 		BundleSalt:    entry.BundleSeed.String,
 	}, nil
@@ -122,10 +122,10 @@ func (s *SaverService) getNFTDeposit(ctx context.Context, hash string, instructi
 
 	return &lib.MsgDepositResponse{
 		TargetNetwork: entry.TargetNetwork,
-		Sender:        hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Sender).Bytes()),
+		Sender:        entry.Sender,
 		Receiver:      entry.Receiver,
 		TokenAddress:  collection,
-		TokenId:       hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Mint).Bytes()),
+		TokenId:       entry.Mint,
 		BundleData:    entry.BundleData.String,
 		BundleSalt:    entry.BundleSeed.String,
 	}, nil
