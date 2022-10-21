@@ -50,7 +50,7 @@ func (f *ftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publi
 		Mint:   hexutil.Encode(accounts[contract.DepositFTMintIndex].Bytes()),
 	}
 
-	if args.BundleData != nil && args.BundleSeed != nil {
+	if args.BundleData != nil && len(*args.BundleData) > 0 && args.BundleSeed != nil {
 		entry.BundleData = sql.NullString{String: hexutil.Encode(*args.BundleData), Valid: true}
 		entry.BundleData = sql.NullString{String: hexutil.Encode((*args.BundleSeed)[:]), Valid: true}
 	}

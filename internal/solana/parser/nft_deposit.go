@@ -63,7 +63,7 @@ func (f *nftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publ
 		Collection: sql.NullString{String: collection, Valid: collection != ""},
 	}
 
-	if args.BundleData != nil && args.BundleSeed != nil {
+	if args.BundleData != nil && len(*args.BundleData) > 0 && args.BundleSeed != nil {
 		entry.BundleData = sql.NullString{String: hexutil.Encode(*args.BundleData), Valid: true}
 		entry.BundleData = sql.NullString{String: hexutil.Encode((*args.BundleSeed)[:]), Valid: true}
 	}
@@ -88,7 +88,8 @@ func (f *nftParser) getTokenCollectionAddress(mint solana.PublicKey) (string, er
 		return "", err
 	}
 
-	if metadata.Collection == nil {
+	// TODO maybe check for zero collection address instead of verified value
+	if metadata.Collection == nil || metadata.Collection.Verified == false {
 		return "", nil
 	}
 

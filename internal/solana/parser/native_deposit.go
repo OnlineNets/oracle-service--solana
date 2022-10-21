@@ -49,7 +49,7 @@ func (n *nativeParser) ParseTransaction(tx solana.Signature, accounts []solana.P
 		Sender: hexutil.Encode(accounts[contract.DepositNativeOwnerIndex].Bytes()),
 	}
 
-	if args.BundleData != nil && args.BundleSeed != nil {
+	if args.BundleData != nil && len(*args.BundleData) > 0 && args.BundleSeed != nil {
 		entry.BundleData = sql.NullString{String: hexutil.Encode(*args.BundleData), Valid: true}
 		entry.BundleData = sql.NullString{String: hexutil.Encode((*args.BundleSeed)[:]), Valid: true}
 	}
