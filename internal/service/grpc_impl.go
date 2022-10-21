@@ -6,8 +6,6 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/gagliardetto/solana-go"
 	"gitlab.com/distributed_lab/logan/v3"
 	lib "gitlab.com/rarify-protocol/saver-grpc-lib/grpc"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
@@ -117,7 +115,7 @@ func (s *SaverService) getNFTDeposit(ctx context.Context, hash string, instructi
 
 	collection := ""
 	if entry.Collection.Valid {
-		collection = hexutil.Encode(solana.MustPublicKeyFromBase58(entry.Collection.String).Bytes())
+		collection = entry.Collection.String
 	}
 
 	return &lib.MsgDepositResponse{
