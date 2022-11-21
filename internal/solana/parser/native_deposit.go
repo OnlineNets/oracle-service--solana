@@ -1,7 +1,11 @@
 package parser
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
+	tokentypes "gitlab.com/rarify-protocol/rarimo-core/x/tokenmanager/types"
+	"gitlab.com/rarify-protocol/saver-grpc-lib/transactor"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/near/borsh-go"
@@ -17,12 +21,14 @@ import (
 type nativeParser struct {
 	log     *logan.Entry
 	storage *pg.Storage
+	tx      transactor.Transactor
 }
 
 func NewNativeParser(cfg config.Config) *nativeParser {
 	return &nativeParser{
 		log:     cfg.Log(),
 		storage: cfg.Storage(),
+		tx:      cfg.Transactor(),
 	}
 }
 
@@ -54,5 +60,19 @@ func (n *nativeParser) ParseTransaction(tx solana.Signature, accounts []solana.P
 		entry.BundleData = sql.NullString{String: hexutil.Encode((*args.BundleSeed)[:]), Valid: true}
 	}
 
-	return n.storage.Clone().NativeDepositQ().Insert(entry)
+	err = n.storage.Clone().NativeDepositQ().Insert(entry)
+	if err != nil {
+		return errors.Wrap(err, "error inserting native deposit", logan.F{
+			"tx_hash": tx.String(),
+		})
+	}
+
+	return n.tx.SubmitTransferOp(
+		context.TODO(),
+		hexutil.Encode(accounts[contract.DepositNativeOwnerIndex].Bytes()),
+		tx.String(),
+		fmt.Sprintf("%d", instructionId),
+		args.NetworkTo,
+		tokentypes.Type_NATIVE,
+	)
 }

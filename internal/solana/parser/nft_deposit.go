@@ -3,6 +3,9 @@ package parser
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	tokentypes "gitlab.com/rarify-protocol/rarimo-core/x/tokenmanager/types"
+	"gitlab.com/rarify-protocol/saver-grpc-lib/transactor"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/near/borsh-go"
@@ -21,6 +24,7 @@ type nftParser struct {
 	log     *logan.Entry
 	storage *pg.Storage
 	solana  *rpc.Client
+	tx      transactor.Transactor
 }
 
 func NewNFTParser(cfg config.Config) *nftParser {
@@ -28,6 +32,7 @@ func NewNFTParser(cfg config.Config) *nftParser {
 		log:     cfg.Log(),
 		storage: cfg.Storage(),
 		solana:  cfg.SolanaRPC(),
+		tx:      cfg.Transactor(),
 	}
 }
 
@@ -68,7 +73,21 @@ func (f *nftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publ
 		entry.BundleData = sql.NullString{String: hexutil.Encode((*args.BundleSeed)[:]), Valid: true}
 	}
 
-	return f.storage.NftDepositQ().Insert(entry)
+	err = f.storage.NftDepositQ().Insert(entry)
+	if err != nil {
+		return errors.Wrap(err, "error inserting nft deposit", logan.F{
+			"tx_hash": tx.String(),
+		})
+	}
+
+	return f.tx.SubmitTransferOp(
+		context.TODO(),
+		hexutil.Encode(accounts[contract.DepositNFTOwnerIndex].Bytes()),
+		tx.String(),
+		fmt.Sprintf("%d", instructionId),
+		args.NetworkTo,
+		tokentypes.Type_METAPLEX_NFT,
+	)
 }
 
 func (f *nftParser) getTokenCollectionAddress(mint solana.PublicKey) (string, error) {

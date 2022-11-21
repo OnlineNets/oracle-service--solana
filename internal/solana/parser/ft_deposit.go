@@ -1,7 +1,11 @@
 package parser
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
+	tokentypes "gitlab.com/rarify-protocol/rarimo-core/x/tokenmanager/types"
+	"gitlab.com/rarify-protocol/saver-grpc-lib/transactor"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/near/borsh-go"
@@ -17,12 +21,14 @@ import (
 type ftParser struct {
 	log     *logan.Entry
 	storage *pg.Storage
+	tx      transactor.Transactor
 }
 
 func NewFTParser(cfg config.Config) *ftParser {
 	return &ftParser{
 		log:     cfg.Log(),
 		storage: cfg.Storage(),
+		tx:      cfg.Transactor(),
 	}
 }
 
@@ -55,5 +61,19 @@ func (f *ftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publi
 		entry.BundleData = sql.NullString{String: hexutil.Encode((*args.BundleSeed)[:]), Valid: true}
 	}
 
-	return f.storage.Clone().FtDepositQ().Insert(entry)
+	err = f.storage.Clone().FtDepositQ().Insert(entry)
+	if err != nil {
+		return errors.Wrap(err, "error inserting ft deposit", logan.F{
+			"tx_hash": tx.String(),
+		})
+	}
+
+	return f.tx.SubmitTransferOp(
+		context.TODO(),
+		hexutil.Encode(accounts[contract.DepositFTOwnerIndex].Bytes()),
+		tx.String(),
+		fmt.Sprintf("%d", instructionId),
+		args.NetworkTo,
+		tokentypes.Type_METAPLEX_FT,
+	)
 }
