@@ -19,7 +19,6 @@ listen:
   disable_catchup: false
   program_id: GexDbBi7B2UrJDi9JkrWH9fFVhmysN7u5C9zT2HkC6yZ
 
-transactor:
-  rpc: "localhost:9090"
-  sender_prv_hex: ""
-  chain_id: "rarimo-core"
+broadcaster:
+  addr: "broadcaster:80"
+  sender: "rarimo..."

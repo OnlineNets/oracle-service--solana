@@ -4,14 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	tokentypes "gitlab.com/rarify-protocol/rarimo-core/x/tokenmanager/types"
-	"gitlab.com/rarify-protocol/saver-grpc-lib/transactor"
-
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/near/borsh-go"
 	"github.com/olegfomenko/solana-go"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
+	rarimocore "gitlab.com/rarify-protocol/rarimo-core/x/rarimocore/types"
+	tokentypes "gitlab.com/rarify-protocol/rarimo-core/x/tokenmanager/types"
+	"gitlab.com/rarify-protocol/saver-grpc-lib/broadcaster"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data/pg"
@@ -21,14 +21,14 @@ import (
 type nativeParser struct {
 	log     *logan.Entry
 	storage *pg.Storage
-	tx      transactor.Transactor
+	cli     broadcaster.Broadcaster
 }
 
 func NewNativeParser(cfg config.Config) *nativeParser {
 	return &nativeParser{
 		log:     cfg.Log(),
 		storage: cfg.Storage(),
-		tx:      cfg.Transactor(),
+		cli:     cfg.Broadcaster(),
 	}
 }
 
@@ -67,12 +67,14 @@ func (n *nativeParser) ParseTransaction(tx solana.Signature, accounts []solana.P
 		})
 	}
 
-	return n.tx.SubmitTransferOp(
+	return n.cli.BroadcastTx(
 		context.TODO(),
-		hexutil.Encode(accounts[contract.DepositNativeOwnerIndex].Bytes()),
-		tx.String(),
-		fmt.Sprintf("%d", instructionId),
-		args.NetworkTo,
-		tokentypes.Type_NATIVE,
+		rarimocore.NewMsgCreateTransferOp(
+			n.cli.Sender(),
+			hexutil.Encode(accounts[contract.DepositNativeOwnerIndex].Bytes()),
+			fmt.Sprintf("%d", instructionId),
+			args.NetworkTo,
+			tokentypes.Type_NATIVE,
+		),
 	)
 }

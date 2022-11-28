@@ -4,8 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	rarimocore "gitlab.com/rarify-protocol/rarimo-core/x/rarimocore/types"
 	tokentypes "gitlab.com/rarify-protocol/rarimo-core/x/tokenmanager/types"
-	"gitlab.com/rarify-protocol/saver-grpc-lib/transactor"
+	"gitlab.com/rarify-protocol/saver-grpc-lib/broadcaster"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/near/borsh-go"
@@ -21,14 +22,14 @@ import (
 type ftParser struct {
 	log     *logan.Entry
 	storage *pg.Storage
-	tx      transactor.Transactor
+	cli     broadcaster.Broadcaster
 }
 
 func NewFTParser(cfg config.Config) *ftParser {
 	return &ftParser{
 		log:     cfg.Log(),
 		storage: cfg.Storage(),
-		tx:      cfg.Transactor(),
+		cli:     cfg.Broadcaster(),
 	}
 }
 
@@ -68,12 +69,14 @@ func (f *ftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publi
 		})
 	}
 
-	return f.tx.SubmitTransferOp(
+	return f.cli.BroadcastTx(
 		context.TODO(),
-		hexutil.Encode(accounts[contract.DepositFTOwnerIndex].Bytes()),
-		tx.String(),
-		fmt.Sprintf("%d", instructionId),
-		args.NetworkTo,
-		tokentypes.Type_METAPLEX_FT,
+		rarimocore.NewMsgCreateTransferOp(
+			f.cli.Sender(),
+			hexutil.Encode(accounts[contract.DepositFTOwnerIndex].Bytes()),
+			fmt.Sprintf("%d", instructionId),
+			args.NetworkTo,
+			tokentypes.Type_METAPLEX_FT,
+		),
 	)
 }
