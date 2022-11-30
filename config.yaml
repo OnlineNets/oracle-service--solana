@@ -19,3 +19,6 @@ listen:
   disable_catchup: false
   program_id: GexDbBi7B2UrJDi9JkrWH9fFVhmysN7u5C9zT2HkC6yZ
 
+broadcaster:
+  addr: "localhost:9090"
+  sender_public_key_hex: "..."

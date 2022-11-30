@@ -4,12 +4,14 @@ import (
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/kit/pgdb"
+	"gitlab.com/rarify-protocol/saver-grpc-lib/broadcaster"
 )
 
 type Config interface {
 	comfig.Logger
 	comfig.Listenerer
 	pgdb.Databaser
+	broadcaster.Broadcasterer
 	Solaner
 	BridgeListener
 	Storager
@@ -19,6 +21,7 @@ type config struct {
 	comfig.Logger
 	comfig.Listenerer
 	pgdb.Databaser
+	broadcaster.Broadcasterer
 	Solaner
 	BridgeListener
 	getter kv.Getter
@@ -34,5 +37,6 @@ func New(getter kv.Getter) Config {
 		BridgeListener: NewBridgeListener(getter),
 		Storager:       NewStorager(getter),
 		Databaser:      pgdb.NewDatabaser(getter),
+		Broadcasterer:  broadcaster.New(getter),
 	}
 }

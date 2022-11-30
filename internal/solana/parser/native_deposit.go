@@ -1,13 +1,17 @@
 package parser
 
 import (
+	"context"
 	"database/sql"
-
+	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/near/borsh-go"
 	"github.com/olegfomenko/solana-go"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
+	rarimocore "gitlab.com/rarify-protocol/rarimo-core/x/rarimocore/types"
+	tokentypes "gitlab.com/rarify-protocol/rarimo-core/x/tokenmanager/types"
+	"gitlab.com/rarify-protocol/saver-grpc-lib/broadcaster"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data"
 	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data/pg"
@@ -17,12 +21,14 @@ import (
 type nativeParser struct {
 	log     *logan.Entry
 	storage *pg.Storage
+	cli     broadcaster.Broadcaster
 }
 
 func NewNativeParser(cfg config.Config) *nativeParser {
 	return &nativeParser{
 		log:     cfg.Log(),
 		storage: cfg.Storage(),
+		cli:     cfg.Broadcaster(),
 	}
 }
 
@@ -54,5 +60,21 @@ func (n *nativeParser) ParseTransaction(tx solana.Signature, accounts []solana.P
 		entry.BundleData = sql.NullString{String: hexutil.Encode((*args.BundleSeed)[:]), Valid: true}
 	}
 
-	return n.storage.Clone().NativeDepositQ().Insert(entry)
+	err = n.storage.Clone().NativeDepositQ().Insert(entry)
+	if err != nil {
+		return errors.Wrap(err, "error inserting native deposit", logan.F{
+			"tx_hash": tx.String(),
+		})
+	}
+
+	return n.cli.BroadcastTx(
+		context.TODO(),
+		rarimocore.NewMsgCreateTransferOp(
+			n.cli.Sender(),
+			hexutil.Encode(accounts[contract.DepositNativeOwnerIndex].Bytes()),
+			fmt.Sprintf("%d", instructionId),
+			args.NetworkTo,
+			tokentypes.Type_NATIVE,
+		),
+	)
 }
