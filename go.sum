@@ -850,10 +850,8 @@ gitlab.com/rarify-protocol/go-merkle v0.0.0-20220831221733-8f4135fe9f1f h1:BodYv
 gitlab.com/rarify-protocol/go-merkle v0.0.0-20220831221733-8f4135fe9f1f/go.mod h1:n+k8vkNffvSzX41qNeBQYvlBaFFUPEo8WJP/Ie+fXSQ=
 gitlab.com/rarify-protocol/rarimo-core v0.0.0-20221109132133-b580d0efda3f h1:8WvGUV8c1WgNmI3wAYsHrhCLnCAqvFJPEAv737/jBBM=
 gitlab.com/rarify-protocol/rarimo-core v0.0.0-20221109132133-b580d0efda3f/go.mod h1:WMo2lV3JJkQqxqNrs2cLs66KYKaL7Y80IajaCT0KhN0=
-gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20221128152742-ae98412289fc h1:z74MtuvMHJhgqPTeMZhnBhpFvNmc08naiFpPiqZIy7c=
-gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20221128152742-ae98412289fc/go.mod h1:yFOplY+gbwtZqF9MTN1Sf6NIDvKM6WPTTZr3gnW9PX4=
-gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20221130081244-75fde01c3d17 h1:IRrsGBhR9/ImLAa37Cm4Rxd9qGc61/Q1TRcJrKKjpz0=
-gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20221130081244-75fde01c3d17/go.mod h1:yFOplY+gbwtZqF9MTN1Sf6NIDvKM6WPTTZr3gnW9PX4=
+gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20221130133422-c2d48a60561b h1:8qJFk+o6Urf+MiBhUgi6K5yXuBueW6K1lA0cwN+j1E8=
+gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20221130133422-c2d48a60561b/go.mod h1:yFOplY+gbwtZqF9MTN1Sf6NIDvKM6WPTTZr3gnW9PX4=
 gitlab.com/rarify-protocol/solana-program-go v0.0.0-20221006113253-751d6afc8440 h1:RJokWAwCcyg/rBuDD/IJp9u9ZrtIi4jeViHvxfFuyZM=
 gitlab.com/rarify-protocol/solana-program-go v0.0.0-20221006113253-751d6afc8440/go.mod h1:8Qy8BBb2NVVkvjLaO56HvgcEDe9mZ9jg0Z0O1pTI9mI=
 gitlab.com/rarimo/broadcaster-svc v0.0.0-20221128150745-642a6fe8e458 h1:/xsHK4LyxtP6iqq9pr+bPl6PgTQXF+UMKlCd8ktAEMM=
