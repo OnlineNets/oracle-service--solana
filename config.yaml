@@ -1,0 +1,24 @@
+log:
+  disable_sentry: true
+  level: debug
+
+db:
+  url: "postgres://solana:solana@localhost:5432/solana?sslmode=disable"
+
+listener:
+  addr: :8000
+
+rpc:
+  url: https://api.devnet.solana.com
+
+ws:
+  url: wss://api.devnet.solana.com
+
+listen:
+  from_tx: "5EcruHXfqcS6AegcNnbvGACG6EHCUBLKjzUqkkvSz4GZqxysjPHMLzhrKYXfKrRixFZ6Ugk8u26MeeXD2atePC1X"
+  disable_catchup: false
+  program_id: GexDbBi7B2UrJDi9JkrWH9fFVhmysN7u5C9zT2HkC6yZ
+
+broadcaster:
+  addr: "localhost:9090"
+  sender_public_key_hex: "..."
