@@ -26,6 +26,7 @@ shell:
     - export CGO_ENABLED=0
     - export GO111MODULE=on
     - export GOOS=linux
+    - cd /go/src/gitlab.com/rarimo/savers/sol-saver-svc
     - go build  -o /usr/local/bin/sol-saver-svc /go/src/gitlab.com/rarimo/savers/sol-saver-svc
 
 ---
