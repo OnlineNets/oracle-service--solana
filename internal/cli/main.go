@@ -6,10 +6,10 @@ import (
 	"github.com/alecthomas/kingpin"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/logan/v3"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/service"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/solana/catchup"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/solana/listener"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/solana/catchup"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/solana/listener"
 )
 
 func Run(args []string) bool {

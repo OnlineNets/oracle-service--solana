@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/cli"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/cli"
 )
 
 func main() {

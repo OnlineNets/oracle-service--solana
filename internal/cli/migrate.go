@@ -3,8 +3,8 @@ package cli
 import (
 	migrate "github.com/rubenv/sql-migrate"
 	"gitlab.com/distributed_lab/logan/v3/errors"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/assets"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/assets"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
 )
 
 var migrations = &migrate.EmbedFileSystemMigrationSource{

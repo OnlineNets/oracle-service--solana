@@ -4,19 +4,20 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	rarimocore "gitlab.com/rarify-protocol/rarimo-core/x/rarimocore/types"
-	tokentypes "gitlab.com/rarify-protocol/rarimo-core/x/tokenmanager/types"
-	"gitlab.com/rarify-protocol/saver-grpc-lib/broadcaster"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/near/borsh-go"
 	"github.com/olegfomenko/solana-go"
 	"gitlab.com/distributed_lab/logan/v3"
+	rarimocore "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
+	tokentypes "gitlab.com/rarimo/rarimo-core/x/tokenmanager/types"
+	"gitlab.com/rarimo/savers/saver-grpc-lib/broadcaster"
+
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"gitlab.com/distributed_lab/logan/v3/errors"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data/pg"
-	"gitlab.com/rarify-protocol/solana-program-go/contract"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/data"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/data/pg"
+	"gitlab.com/rarimo/solana-program-go/contract"
 )
 
 type ftParser struct {

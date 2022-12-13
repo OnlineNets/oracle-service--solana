@@ -23,10 +23,10 @@ import (
 	"regexp"
 	"strings"
 	"time"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/data"
 {{- if driver "postgres" }}
 	"github.com/lib/pq/hstore"
-	"gitlab.com/rarify-protocol/xo/types/xo"
+	"gitlab.com/rarimo/xo/types/xo"
 {{ end }}{{ range imports }}
 	{{ . }}
 {{ end }}

@@ -8,8 +8,8 @@ import (
 	"github.com/olegfomenko/solana-go/rpc"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
-	"gitlab.com/rarify-protocol/solana-program-go/contract"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
+	"gitlab.com/rarimo/solana-program-go/contract"
 )
 
 const DataInstructionCodeIndex = 0

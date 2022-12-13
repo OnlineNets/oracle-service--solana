@@ -7,9 +7,9 @@ import (
 	"strconv"
 
 	"gitlab.com/distributed_lab/logan/v3"
-	lib "gitlab.com/rarify-protocol/saver-grpc-lib/grpc"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/config"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data/pg"
+	lib "gitlab.com/rarimo/savers/saver-grpc-lib/grpc"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/data/pg"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

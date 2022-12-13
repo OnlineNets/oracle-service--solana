@@ -4,7 +4,7 @@ import (
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/kit/pgdb"
-	"gitlab.com/rarify-protocol/saver-grpc-lib/broadcaster"
+	"gitlab.com/rarimo/savers/saver-grpc-lib/broadcaster"
 )
 
 type Config interface {

@@ -9,7 +9,7 @@ import (
 
 	"gitlab.com/distributed_lab/kit/pgdb"
 	"gitlab.com/distributed_lab/logan/v3/errors"
-	"gitlab.com/rarify-protocol/sol-saver-svc/internal/data"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/data"
 )
 
 // Storage is the helper struct for database operations
