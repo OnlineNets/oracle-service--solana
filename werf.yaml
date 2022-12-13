@@ -9,15 +9,13 @@ git:
   - add: /
     to: /go/src/gitlab.com/rarimo/savers/sol-saver-svc
     stageDependencies:
-      install:
-        - go.mod
-        - go.sum
       setup:
         - "**/*"
 shell:
   install:
     - apk add git build-base
     - git config --global url."https://gitlab-ci-token:{{ env "CI_JOB_TOKEN" }}@gitlab.com/".insteadOf https://gitlab.com/
+    - echo "machine gitlab.com login gitlab-ci-token password {{ env "CI_JOB_TOKEN" }}" > ~/.netrc
     - go env -w GOPRIVATE=gitlab.com/*
     - go env -w GONOSUMDB=gitlab.com/*
     - go env -w GONOPROXY=gitlab.com/*
