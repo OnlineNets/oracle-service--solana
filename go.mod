@@ -6,6 +6,7 @@ require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/gagliardetto/binary v0.7.1
+	github.com/near/borsh-go v0.3.1
 	github.com/olegfomenko/solana-go v1.4.2-0.20220825130821-a1f0ac7c5b0a
 	github.com/rubenv/sql-migrate v1.2.0
 	github.com/spf13/cast v1.5.0
@@ -13,7 +14,7 @@ require (
 	gitlab.com/distributed_lab/kit v1.11.1
 	gitlab.com/distributed_lab/logan v3.8.1+incompatible
 	gitlab.com/rarimo/rarimo-core v0.0.0-20221212134410-6f432204ebb5
-	gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20221212132611-648c3cf06bee
+	gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20221214152950-8cf9b0bb9bdc
 	gitlab.com/rarimo/solana-program-go v0.0.0-20221213131545-b132d8f4bb2a
 	google.golang.org/grpc v1.50.1
 )
@@ -106,7 +107,6 @@ require (
 	github.com/mostynb/zstdpool-freelist v0.0.0-20201229113212-927304c0c3b1 // indirect
 	github.com/mr-tron/base58 v1.2.0 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
-	github.com/near/borsh-go v0.3.1 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect

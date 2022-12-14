@@ -21,4 +21,4 @@ listen:
 
 broadcaster:
   addr: "localhost:9090"
-  sender_public_key_hex: "..."
+  sender_account: "..."
