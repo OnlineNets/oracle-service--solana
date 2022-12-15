@@ -74,7 +74,7 @@ func (f *ftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publi
 		context.TODO(),
 		rarimocore.NewMsgCreateTransferOp(
 			f.cli.Sender(),
-			hexutil.Encode(accounts[contract.DepositFTOwnerIndex].Bytes()),
+			tx.String(),
 			fmt.Sprintf("%d", instructionId),
 			args.NetworkTo,
 			tokentypes.Type_METAPLEX_FT,

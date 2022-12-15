@@ -72,7 +72,7 @@ func (n *nativeParser) ParseTransaction(tx solana.Signature, accounts []solana.P
 		context.TODO(),
 		rarimocore.NewMsgCreateTransferOp(
 			n.cli.Sender(),
-			hexutil.Encode(accounts[contract.DepositNativeOwnerIndex].Bytes()),
+			tx.String(),
 			fmt.Sprintf("%d", instructionId),
 			args.NetworkTo,
 			tokentypes.Type_NATIVE,

@@ -85,7 +85,7 @@ func (f *nftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publ
 		context.TODO(),
 		rarimocore.NewMsgCreateTransferOp(
 			f.cli.Sender(),
-			hexutil.Encode(accounts[contract.DepositNFTOwnerIndex].Bytes()),
+			tx.String(),
 			fmt.Sprintf("%d", instructionId),
 			args.NetworkTo,
 			tokentypes.Type_METAPLEX_NFT,
