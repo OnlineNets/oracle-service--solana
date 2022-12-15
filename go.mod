@@ -13,7 +13,7 @@ require (
 	gitlab.com/distributed_lab/figure v2.1.0+incompatible
 	gitlab.com/distributed_lab/kit v1.11.1
 	gitlab.com/distributed_lab/logan v3.8.1+incompatible
-	gitlab.com/rarimo/rarimo-core v0.0.0-20221212134410-6f432204ebb5
+	gitlab.com/rarimo/rarimo-core v0.0.0-20221215111533-c09755b38fd1
 	gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20221214152950-8cf9b0bb9bdc
 	gitlab.com/rarimo/solana-program-go v0.0.0-20221213131545-b132d8f4bb2a
 	google.golang.org/grpc v1.50.1
