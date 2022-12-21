@@ -74,7 +74,7 @@ func (n *nativeParser) ParseTransaction(tx solana.Signature, accounts []solana.P
 			n.cli.Sender(),
 			tx.String(),
 			fmt.Sprintf("%d", instructionId),
-			args.NetworkTo,
+			NetworkName,
 			tokentypes.Type_NATIVE,
 		),
 	)

@@ -12,7 +12,10 @@ import (
 	"gitlab.com/rarimo/solana-program-go/contract"
 )
 
-const DataInstructionCodeIndex = 0
+const (
+	NetworkName              = "Solana"
+	DataInstructionCodeIndex = 0
+)
 
 type Parser interface {
 	ParseTransaction(tx solana.Signature, accounts []solana.PublicKey, instruction solana.CompiledInstruction, instructionId int) error

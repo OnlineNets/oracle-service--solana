@@ -87,7 +87,7 @@ func (f *nftParser) ParseTransaction(tx solana.Signature, accounts []solana.Publ
 			f.cli.Sender(),
 			tx.String(),
 			fmt.Sprintf("%d", instructionId),
-			args.NetworkTo,
+			NetworkName,
 			tokentypes.Type_METAPLEX_NFT,
 		),
 	)
