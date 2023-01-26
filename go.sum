@@ -912,12 +912,10 @@ gitlab.com/rarimo/broadcaster-svc v0.0.0-20221130133449-dfacd1486515 h1:TNIHf2/5
 gitlab.com/rarimo/broadcaster-svc v0.0.0-20221130133449-dfacd1486515/go.mod h1:dqIQPbo4EaIofCrTiv97IUGxLtq9IJkLecuBpdRErIY=
 gitlab.com/rarimo/cosmos-sdk v0.45.5-dev.4 h1:2Iq+d2M4iSmEN8rmozCwZ/5c308GB1CACNf12DVC7Eg=
 gitlab.com/rarimo/cosmos-sdk v0.45.5-dev.4/go.mod h1:WOqtDxN3eCCmnYLVla10xG7lEXkFjpTaqm2a2WasgCc=
-gitlab.com/rarimo/rarimo-core v0.0.0-20230126114404-4d71e1a69768 h1:HHjYBjsnIV3aBf/Pn7c0orgPHdf1/PbWLFbla3H3f7k=
-gitlab.com/rarimo/rarimo-core v0.0.0-20230126114404-4d71e1a69768/go.mod h1:xjlYTjVFX5CZauaRWTEmLYvqpHtOVaNe6KHgf8hbi0E=
-gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230126151702-6c89a338d46c h1:nGPcZ9RvPhAOvcmvjN2Yjf6c997/K/clvkyPcw/nOvI=
-gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230126151702-6c89a338d46c/go.mod h1:bDzE9EeTYwFjPdBUXrACwOC2WjgwQmcHmP9Vv8YJzmA=
-gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230126200844-18792aa70f66 h1:sMN+dLUGIQniI0vIw9dM3yIjIShkefJt5mbDWGYKuEk=
-gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230126200844-18792aa70f66/go.mod h1:bDzE9EeTYwFjPdBUXrACwOC2WjgwQmcHmP9Vv8YJzmA=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230126204041-ab1ccd739b95 h1:JZmC5tbR5jD36Fge5GZXy/lih+Qo0BT9HxqaFDuCpoM=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230126204041-ab1ccd739b95/go.mod h1:xjlYTjVFX5CZauaRWTEmLYvqpHtOVaNe6KHgf8hbi0E=
+gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230126204231-f282956dbc93 h1:qmCZbbl+TJZCduPfsG4zp5DZvp0+Mykk96UGkJf0CfQ=
+gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230126204231-f282956dbc93/go.mod h1:M0j+FbkXlG9qslIX5F8pjf3DjDuIU8Hiqeb0l4Uxmwc=
 gitlab.com/rarimo/solana-program-go v0.0.0-20221213131545-b132d8f4bb2a h1:01s65Gbi7yQL0r1ZbdM6kMSxf7nrFNg72UPPHolk2WE=
 gitlab.com/rarimo/solana-program-go v0.0.0-20221213131545-b132d8f4bb2a/go.mod h1:Fivs168ovoGl0rvOb2HIfwRPebK4i7EDJrcHxguT4gw=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
