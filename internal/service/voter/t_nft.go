@@ -173,7 +173,7 @@ func (f *nftOperator) getTokenCollectionAddress(mint solana.PublicKey) (string, 
 	}
 
 	// TODO maybe check for zero collection address instead of verified value
-	if metadata.Collection == nil || metadata.Collection.Verified == false {
+	if metadata.Collection == nil || !metadata.Collection.Verified {
 		return "", nil
 	}
 
