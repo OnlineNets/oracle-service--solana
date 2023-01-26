@@ -6,15 +6,16 @@ require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/gagliardetto/binary v0.7.1
+	github.com/gogo/protobuf v1.3.3
 	github.com/near/borsh-go v0.3.1
 	github.com/olegfomenko/solana-go v1.4.2-0.20220825130821-a1f0ac7c5b0a
-	github.com/rubenv/sql-migrate v1.2.0
 	github.com/spf13/cast v1.5.0
+	github.com/tendermint/tendermint v0.34.23
 	gitlab.com/distributed_lab/figure v2.1.0+incompatible
 	gitlab.com/distributed_lab/kit v1.11.1
 	gitlab.com/distributed_lab/logan v3.8.1+incompatible
 	gitlab.com/rarimo/rarimo-core v0.0.0-20230126114404-4d71e1a69768
-	gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230125234913-0aac1ada3813
+	gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230126144131-c8fbd1eb760b
 	gitlab.com/rarimo/solana-program-go v0.0.0-20221213131545-b132d8f4bb2a
 	google.golang.org/grpc v1.51.0
 )
@@ -61,12 +62,11 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gagliardetto/treeout v0.1.4 // indirect
 	github.com/getsentry/sentry-go v0.7.0 // indirect
-	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
 	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
+	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
-	github.com/gogo/protobuf v1.3.3 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -96,6 +96,7 @@ require (
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
+	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/mimoo/StrobeGo v0.0.0-20210601165009-122bf33a46e0 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
@@ -128,7 +129,6 @@ require (
 	github.com/tendermint/btcd v0.1.1 // indirect
 	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
-	github.com/tendermint/tendermint v0.34.23 // indirect
 	github.com/tendermint/tm-db v0.6.7 // indirect
 	github.com/teris-io/shortid v0.0.0-20201117134242-e59966efd125 // indirect
 	github.com/tidwall/gjson v1.14.0 // indirect
@@ -136,7 +136,6 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/zondax/hid v0.9.1-0.20220302062450-5552068d2266 // indirect
 	gitlab.com/distributed_lab/running v0.0.0-20200706131153-4af0e83eb96c // indirect
-	gitlab.com/rarify-protocol/saver-grpc-lib v0.0.0-20221130133422-c2d48a60561b // indirect
 	gitlab.com/rarimo/broadcaster-svc v0.0.0-20221130133449-dfacd1486515 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
 	go.opencensus.io v0.23.0 // indirect
@@ -154,6 +153,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/genproto v0.0.0-20221207170731-23e4bf6bdc37 // indirect
 	google.golang.org/protobuf v1.28.2-0.20220831092852-f930b1dc76e8 // indirect
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
