@@ -59,7 +59,7 @@ func (f *ftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey
 	from := &tokentypes.OnChainItemIndex{
 		Chain:   f.chain,
 		Address: address,
-		TokenID: address,
+		TokenID: "",
 	}
 
 	to, err := f.getTo(ctx, from, args.NetworkTo)
