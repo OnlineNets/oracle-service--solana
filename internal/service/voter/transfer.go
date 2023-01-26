@@ -39,7 +39,7 @@ func NewTransferOperator(cfg config.Config) *TransferOperator {
 }
 
 // Implements verifiers.ITransferOperator
-var _ verifiers.ITransferOperator = &TransferOperator{}
+var _ verifiers.TransferOperator = &TransferOperator{}
 
 func (t *TransferOperator) VerifyTransfer(tx, eventId string, transfer *rarimotypes.Transfer) error {
 	if transfer.From.Chain != t.chain {

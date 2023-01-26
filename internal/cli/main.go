@@ -34,7 +34,7 @@ func Run(args []string) bool {
 
 	voterCmd := runCmd.Command("voter", "run voter service")
 	saverCmd := runCmd.Command("saver", "run saver service")
-	saverCatchpuCmd := runCmd.Command("saver-catchup", "run saver service")
+	saverCatchupCmd := runCmd.Command("saver-catchup", "run saver service")
 
 	serviceCmd := runCmd.Command("service", "run service") // you can insert custom help
 
@@ -51,17 +51,22 @@ func Run(args []string) bool {
 			cfg.Log(),
 		)
 
-		v := voter.NewVoter(cfg.Log(), cfg.Broadcaster(), map[rarimotypes.OpType]voter.IVerifier{
+		v := voter.NewVoter(cfg.Log(), cfg.Broadcaster(), map[rarimotypes.OpType]voter.Verifier{
 			rarimotypes.OpType_TRANSFER: verifier,
 		})
 
-		voter.NewCatchupper(cfg.Cosmos(), v, cfg.Log()).Run()
-		go voter.NewTransferSubscriber(v, cfg.Tendermint(), cfg.Cosmos(), cfg.Log()).Run()
+		// Running catchup for unvoted operations
+		voter.NewCatchupper(cfg.Cosmos(), v, cfg.Log()).Run(context.TODO())
+		// Running subscriber for new operations
+		go voter.NewTransferSubscriber(v, cfg.Tendermint(), cfg.Cosmos(), cfg.Log()).Run(context.Background())
 
+		// Running GRPC server
 		err = grpc.NewSaverService(cfg.Log(), cfg.Listener(), v).Run()
 	case saverCmd.FullCommand():
+		// Running subscriber for new transaction on bridge
 		listener.NewService(cfg).Listen(context.TODO())
-	case saverCatchpuCmd.FullCommand():
+	case saverCatchupCmd.FullCommand():
+		// Running catchup for transaction on bridge
 		err = catchup.NewService(cfg).Catchup(context.TODO())
 	case serviceCmd.FullCommand():
 		verifier := verifiers.NewTransferVerifier(
@@ -69,14 +74,19 @@ func Run(args []string) bool {
 			cfg.Log(),
 		)
 
-		v := voter.NewVoter(cfg.Log(), cfg.Broadcaster(), map[rarimotypes.OpType]voter.IVerifier{
+		v := voter.NewVoter(cfg.Log(), cfg.Broadcaster(), map[rarimotypes.OpType]voter.Verifier{
 			rarimotypes.OpType_TRANSFER: verifier,
 		})
 
-		voter.NewCatchupper(cfg.Cosmos(), v, cfg.Log()).Run()
-		go voter.NewTransferSubscriber(v, cfg.Tendermint(), cfg.Cosmos(), cfg.Log()).Run()
-		go listener.NewService(cfg).Listen(context.TODO())
+		// Running catchup for unvoted operations
+		voter.NewCatchupper(cfg.Cosmos(), v, cfg.Log()).Run(context.TODO())
 
+		// Running subscriber for new operations
+		go voter.NewTransferSubscriber(v, cfg.Tendermint(), cfg.Cosmos(), cfg.Log()).Run(context.Background())
+		// Running subscriber for new transaction on bridge
+		go listener.NewService(cfg).Listen(context.Background())
+
+		// Running GRPC server
 		err = grpc.NewSaverService(cfg.Log(), cfg.Listener(), v).Run()
 	default:
 		log.Errorf("unknown command %s", cmd)
