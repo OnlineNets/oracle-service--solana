@@ -88,26 +88,25 @@ func (f *nftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKe
 		return nil, err
 	}
 
-	var bundleData, bundleSeed string
-	if args.BundleData != nil && len(*args.BundleData) > 0 && args.BundleSeed != nil {
-		bundleData = hexutil.Encode(*args.BundleData)
-		bundleSeed = hexutil.Encode((*args.BundleSeed)[:])
-	}
-
 	meta, err := f.getItemMeta(from)
 	if err != nil {
 		return nil, err
 	}
 
-	return &rarimotypes.MsgCreateTransferOp{
-		Receiver:   args.ReceiverAddress,
-		Amount:     "1",
-		BundleData: bundleData,
-		BundleSalt: bundleSeed,
-		From:       from,
-		To:         to,
-		Meta:       meta,
-	}, nil
+	msg := &rarimotypes.MsgCreateTransferOp{
+		Receiver: args.ReceiverAddress,
+		Amount:   "1",
+		From:     from,
+		To:       to,
+		Meta:     meta,
+	}
+
+	if args.BundleData != nil && len(*args.BundleData) > 0 && args.BundleSeed != nil {
+		msg.BundleData = hexutil.Encode(*args.BundleData)
+		msg.BundleSalt = hexutil.Encode((*args.BundleSeed)[:])
+	}
+
+	return msg, nil
 }
 
 func (f *nftOperator) getTargetAddress(ctx context.Context, from *tokentypes.OnChainItemIndex, toChain string) (string, error) {

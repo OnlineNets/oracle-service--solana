@@ -22,15 +22,15 @@ type IOperator interface {
 	GetMessage(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.MsgCreateTransferOp, error)
 }
 
-type Service struct {
+type TxProcessor struct {
 	log         *logan.Entry
 	program     solana.PublicKey
 	operators   map[contract.Instruction]IOperator
 	broadcaster broadcaster.Broadcaster
 }
 
-func NewService(cfg config.Config) *Service {
-	return &Service{
+func NewTxProcessor(cfg config.Config) *TxProcessor {
+	return &TxProcessor{
 		log:         cfg.Log(),
 		program:     cfg.ListenConf().ProgramId,
 		broadcaster: cfg.Broadcaster(),
@@ -42,14 +42,14 @@ func NewService(cfg config.Config) *Service {
 	}
 }
 
-func (s *Service) ParseTransaction(sig solana.Signature, tx *solana.Transaction) error {
+func (s *TxProcessor) ProcessTransaction(ctx context.Context, sig solana.Signature, tx *solana.Transaction) error {
 	accounts := tx.Message.AccountKeys
 	s.log.Debug("Parsing transaction " + sig.String())
 
 	for index, instruction := range tx.Message.Instructions {
 		if accounts[instruction.ProgramIDIndex] == s.program {
 			if operator, ok := s.operators[contract.Instruction(instruction.Data[DataInstructionCodeIndex])]; ok {
-				msg, err := operator.GetMessage(context.TODO(), service.GetInstructionAccounts(accounts, instruction.Accounts), instruction)
+				msg, err := operator.GetMessage(ctx, service.GetInstructionAccounts(accounts, instruction.Accounts), instruction)
 				if err != nil {
 					return err
 				}
@@ -58,7 +58,7 @@ func (s *Service) ParseTransaction(sig solana.Signature, tx *solana.Transaction)
 				msg.Tx = sig.String()
 				msg.EventId = fmt.Sprint(index)
 
-				if err := s.broadcaster.BroadcastTx(context.TODO(), msg); err != nil {
+				if err := s.broadcaster.BroadcastTx(ctx, msg); err != nil {
 					return err
 				}
 			}

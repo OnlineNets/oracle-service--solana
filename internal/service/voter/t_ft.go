@@ -67,20 +67,19 @@ func (f *ftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey
 		return nil, err
 	}
 
-	var bundleData, bundleSeed string
-	if args.BundleData != nil && len(*args.BundleData) > 0 && args.BundleSeed != nil {
-		bundleData = hexutil.Encode(*args.BundleData)
-		bundleSeed = hexutil.Encode((*args.BundleSeed)[:])
+	msg := &rarimotypes.MsgCreateTransferOp{
+		Receiver: args.ReceiverAddress,
+		Amount:   fmt.Sprint(args.Amount),
+		From:     from,
+		To:       to,
 	}
 
-	return &rarimotypes.MsgCreateTransferOp{
-		Receiver:   args.ReceiverAddress,
-		Amount:     fmt.Sprint(args.Amount),
-		BundleData: bundleData,
-		BundleSalt: bundleSeed,
-		From:       from,
-		To:         to,
-	}, nil
+	if args.BundleData != nil && len(*args.BundleData) > 0 && args.BundleSeed != nil {
+		msg.BundleData = hexutil.Encode(*args.BundleData)
+		msg.BundleSalt = hexutil.Encode((*args.BundleSeed)[:])
+	}
+
+	return msg, nil
 }
 
 func (f *ftOperator) getTo(ctx context.Context, from *tokentypes.OnChainItemIndex, chain string) (*tokentypes.OnChainItemIndex, error) {

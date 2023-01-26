@@ -14,9 +14,9 @@ import (
 )
 
 type Service struct {
-	log    *logan.Entry
-	parser *saver.Service
-	solana *rpc.Client
+	log       *logan.Entry
+	processor *saver.TxProcessor
+	solana    *rpc.Client
 
 	programId  solana.PublicKey
 	wsEndpoint string
@@ -25,7 +25,7 @@ type Service struct {
 func NewService(cfg config.Config) *Service {
 	return &Service{
 		log:        cfg.Log(),
-		parser:     saver.NewService(cfg),
+		processor:  saver.NewTxProcessor(cfg),
 		programId:  cfg.ListenConf().ProgramId,
 		wsEndpoint: cfg.SolanaWSEndpoint(),
 	}
@@ -68,7 +68,7 @@ func (s *Service) Listen(ctx context.Context) {
 				continue
 			}
 
-			err = s.parser.ParseTransaction(got.Value.Signature, tx)
+			err = s.processor.ProcessTransaction(ctx, got.Value.Signature, tx)
 			if err != nil {
 				s.log.WithError(err).Error("failed to process transaction " + got.Value.Signature.String())
 			}
