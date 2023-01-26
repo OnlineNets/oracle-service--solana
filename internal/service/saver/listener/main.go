@@ -9,12 +9,14 @@ import (
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/solana/parser"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/saver"
 )
 
 type Service struct {
 	log    *logan.Entry
-	parser *parser.Service
+	parser *saver.Service
+	solana *rpc.Client
 
 	programId  solana.PublicKey
 	wsEndpoint string
@@ -23,7 +25,7 @@ type Service struct {
 func NewService(cfg config.Config) *Service {
 	return &Service{
 		log:        cfg.Log(),
-		parser:     parser.NewService(cfg),
+		parser:     saver.NewService(cfg),
 		programId:  cfg.ListenConf().ProgramId,
 		wsEndpoint: cfg.SolanaWSEndpoint(),
 	}
@@ -60,7 +62,7 @@ func (s *Service) Listen(ctx context.Context) {
 				panic(err)
 			}
 
-			tx, err := s.parser.GetTransaction(ctx, got.Value.Signature)
+			tx, err := service.GetTransaction(ctx, s.solana, got.Value.Signature)
 			if err != nil {
 				s.log.WithError(err).Error("failed to get transaction " + got.Value.Signature.String())
 				continue

@@ -8,6 +8,9 @@ import (
 	"gitlab.com/distributed_lab/logan/v3"
 	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
 	"gitlab.com/rarimo/savers/saver-grpc-lib/broadcaster"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/voter"
 	"gitlab.com/rarimo/solana-program-go/contract"
 )
 
@@ -26,8 +29,19 @@ type Service struct {
 	broadcaster broadcaster.Broadcaster
 }
 
-// ParseTransaction checks transaction program id and performs a parser call
-// if the corresponding instruction parser present in parsers map
+func NewService(cfg config.Config) *Service {
+	return &Service{
+		log:         cfg.Log(),
+		program:     cfg.ListenConf().ProgramId,
+		broadcaster: cfg.Broadcaster(),
+		operators: map[contract.Instruction]IOperator{
+			contract.InstructionDepositNative: voter.NewNativeOperator(cfg.ListenConf().Chain, cfg.Cosmos()),
+			contract.InstructionDepositFT:     voter.NewFTOperator(cfg.ListenConf().Chain, cfg.Cosmos()),
+			contract.InstructionDepositNFT:    voter.NewNFTOperator(cfg.ListenConf().Chain, cfg.SolanaRPC(), cfg.Cosmos()),
+		},
+	}
+}
+
 func (s *Service) ParseTransaction(sig solana.Signature, tx *solana.Transaction) error {
 	accounts := tx.Message.AccountKeys
 	s.log.Debug("Parsing transaction " + sig.String())
@@ -35,7 +49,7 @@ func (s *Service) ParseTransaction(sig solana.Signature, tx *solana.Transaction)
 	for index, instruction := range tx.Message.Instructions {
 		if accounts[instruction.ProgramIDIndex] == s.program {
 			if operator, ok := s.operators[contract.Instruction(instruction.Data[DataInstructionCodeIndex])]; ok {
-				msg, err := operator.GetMessage(context.TODO(), getInstructionAccounts(accounts, instruction.Accounts), instruction)
+				msg, err := operator.GetMessage(context.TODO(), service.GetInstructionAccounts(accounts, instruction.Accounts), instruction)
 				if err != nil {
 					return err
 				}
@@ -52,12 +66,4 @@ func (s *Service) ParseTransaction(sig solana.Signature, tx *solana.Transaction)
 	}
 
 	return nil
-}
-
-func getInstructionAccounts(accounts []solana.PublicKey, indexes []uint16) []solana.PublicKey {
-	result := make([]solana.PublicKey, 0, len(indexes))
-	for _, i := range indexes {
-		result = append(result, accounts[i])
-	}
-	return result
 }

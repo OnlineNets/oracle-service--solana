@@ -22,6 +22,14 @@ type nftOperator struct {
 	rarimo *grpc.ClientConn
 }
 
+func NewNFTOperator(chain string, solana *rpc.Client, rarimo *grpc.ClientConn) *nftOperator {
+	return &nftOperator{
+		chain:  chain,
+		solana: solana,
+		rarimo: rarimo,
+	}
+}
+
 func (f *nftOperator) ParseTransaction(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction, transfer *rarimotypes.Transfer) error {
 	msg, err := f.GetMessage(ctx, accounts, instruction)
 	if err != nil {

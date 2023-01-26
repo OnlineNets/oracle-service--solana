@@ -4,13 +4,12 @@ import (
 	"context"
 	"strconv"
 
-	bin "github.com/gagliardetto/binary"
 	"github.com/olegfomenko/solana-go"
 	"github.com/olegfomenko/solana-go/rpc"
-	"gitlab.com/distributed_lab/logan/v3"
-	"gitlab.com/distributed_lab/logan/v3/errors"
 	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
 	"gitlab.com/rarimo/savers/saver-grpc-lib/voter/verifiers"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service"
 	"gitlab.com/rarimo/solana-program-go/contract"
 )
 
@@ -21,11 +20,22 @@ type IOperator interface {
 }
 
 type TransferOperator struct {
-	log       *logan.Entry
 	solana    *rpc.Client
 	program   solana.PublicKey
 	chain     string
 	operators map[contract.Instruction]IOperator
+}
+
+func NewTransferOperator(cfg config.Config) *TransferOperator {
+	return &TransferOperator{
+		program: cfg.ListenConf().ProgramId,
+		chain:   cfg.ListenConf().Chain,
+		operators: map[contract.Instruction]IOperator{
+			contract.InstructionDepositNative: NewNativeOperator(cfg.ListenConf().Chain, cfg.Cosmos()),
+			contract.InstructionDepositFT:     NewFTOperator(cfg.ListenConf().Chain, cfg.Cosmos()),
+			contract.InstructionDepositNFT:    NewNFTOperator(cfg.ListenConf().Chain, cfg.SolanaRPC(), cfg.Cosmos()),
+		},
+	}
 }
 
 // Implements verifiers.ITransferOperator
@@ -46,7 +56,7 @@ func (t *TransferOperator) VerifyTransfer(tx, eventId string, transfer *rarimoty
 		return err
 	}
 
-	transaction, err := t.GetTransaction(context.TODO(), sig)
+	transaction, err := service.GetTransaction(context.TODO(), t.solana, sig)
 	if err != nil {
 		return err
 	}
@@ -54,22 +64,9 @@ func (t *TransferOperator) VerifyTransfer(tx, eventId string, transfer *rarimoty
 	instruction := transaction.Message.Instructions[msgId]
 	if transaction.Message.AccountKeys[instruction.ProgramIDIndex] == t.program {
 		if operator, ok := t.operators[contract.Instruction(instruction.Data[DataInstructionCodeIndex])]; ok {
-			return operator.ParseTransaction(context.TODO(), getInstructionAccounts(transaction.Message.AccountKeys, instruction.Accounts), instruction, transfer)
+			return operator.ParseTransaction(context.TODO(), service.GetInstructionAccounts(transaction.Message.AccountKeys, instruction.Accounts), instruction, transfer)
 		}
 	}
 
 	return verifiers.ErrWrongOperationContent
-}
-
-// GetTransaction requests Solana transaction entry by signature
-func (t *TransferOperator) GetTransaction(ctx context.Context, sig solana.Signature) (*solana.Transaction, error) {
-	out, err := t.solana.GetTransaction(ctx, sig, &rpc.GetTransactionOpts{
-		Encoding: solana.EncodingBase64,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "error getting transaction from solana")
-	}
-
-	tx, err := solana.TransactionFromDecoder(bin.NewBinDecoder(out.Transaction.GetBinary()))
-	return tx, errors.Wrap(err, "error decoding transaction")
 }

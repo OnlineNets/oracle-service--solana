@@ -20,6 +20,13 @@ type ftOperator struct {
 	rarimo *grpc.ClientConn
 }
 
+func NewFTOperator(chain string, rarimo *grpc.ClientConn) *ftOperator {
+	return &ftOperator{
+		chain:  chain,
+		rarimo: rarimo,
+	}
+}
+
 func (f *ftOperator) ParseTransaction(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction, transfer *rarimotypes.Transfer) error {
 	msg, err := f.GetMessage(ctx, accounts, instruction)
 	if err != nil {

@@ -6,7 +6,6 @@ import (
 	"github.com/olegfomenko/solana-go"
 	"github.com/spf13/cast"
 	"gitlab.com/distributed_lab/figure"
-	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
@@ -15,30 +14,16 @@ type ListenConf struct {
 	ProgramId      solana.PublicKey `fig:"program_id"`
 	FromTx         solana.Signature `fig:"from_tx"`
 	DisableCatchup bool             `fig:"disable_catchup"`
+	Chain          string           `fig:"chain"`
 }
 
-type BridgeListener interface {
-	ListenConf() ListenConf
-}
-
-type listener struct {
-	getter kv.Getter
-	once   comfig.Once
-}
-
-func NewBridgeListener(getter kv.Getter) BridgeListener {
-	return &listener{
-		getter: getter,
-	}
-}
-
-func (l *listener) ListenConf() ListenConf {
-	return l.once.Do(func() interface{} {
+func (c *config) ListenConf() ListenConf {
+	return c.lconf.Do(func() interface{} {
 		config := ListenConf{DisableCatchup: true}
 
 		if err := figure.Out(&config).
 			With(figure.BaseHooks, solHooks).
-			From(kv.MustGetStringMap(l.getter, "listen")).
+			From(kv.MustGetStringMap(c.getter, "listen")).
 			Please(); err != nil {
 			panic(err)
 		}

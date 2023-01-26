@@ -20,6 +20,13 @@ type nativeOperator struct {
 	rarimo *grpc.ClientConn
 }
 
+func NewNativeOperator(chain string, rarimo *grpc.ClientConn) *nativeOperator {
+	return &nativeOperator{
+		chain:  chain,
+		rarimo: rarimo,
+	}
+}
+
 func (n *nativeOperator) ParseTransaction(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction, transfer *rarimotypes.Transfer) error {
 	msg, err := n.GetMessage(ctx, accounts, instruction)
 	if err != nil {

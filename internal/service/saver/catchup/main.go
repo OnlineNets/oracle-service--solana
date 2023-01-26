@@ -9,13 +9,14 @@ import (
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/solana/parser"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/saver"
 )
 
 type Service struct {
 	log    *logan.Entry
 	solana *rpc.Client
-	parser *parser.Service
+	parser *saver.Service
 
 	programId solana.PublicKey
 	fromTx    solana.Signature
@@ -26,7 +27,7 @@ func NewService(cfg config.Config) *Service {
 	return &Service{
 		log:    cfg.Log(),
 		solana: cfg.SolanaRPC(),
-		parser: parser.NewService(cfg),
+		parser: saver.NewService(cfg),
 
 		programId: cfg.ListenConf().ProgramId,
 		fromTx:    cfg.ListenConf().FromTx,
@@ -72,7 +73,7 @@ func (s *Service) catchupFrom(ctx context.Context, start solana.Signature) (sola
 
 	for _, sig := range signatures {
 		s.log.Debug("Checking tx: " + sig.Signature.String())
-		tx, err := s.parser.GetTransaction(ctx, sig.Signature)
+		tx, err := service.GetTransaction(ctx, s.solana, sig.Signature)
 		if err != nil {
 			s.log.WithError(err).Error("failed to get transaction " + sig.Signature.String())
 
