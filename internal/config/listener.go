@@ -11,15 +11,14 @@ import (
 )
 
 type ListenConf struct {
-	ProgramId      solana.PublicKey `fig:"program_id"`
-	FromTx         solana.Signature `fig:"from_tx"`
-	DisableCatchup bool             `fig:"disable_catchup"`
-	Chain          string           `fig:"chain"`
+	ProgramId solana.PublicKey `fig:"program_id"`
+	FromTx    solana.Signature `fig:"from_tx"`
+	Chain     string           `fig:"chain"`
 }
 
 func (c *config) ListenConf() ListenConf {
 	return c.lconf.Do(func() interface{} {
-		config := ListenConf{DisableCatchup: true}
+		config := ListenConf{}
 
 		if err := figure.Out(&config).
 			With(figure.BaseHooks, solHooks).
