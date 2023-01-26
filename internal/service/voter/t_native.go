@@ -2,7 +2,7 @@ package voter
 
 import (
 	"context"
-	"strconv"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/gogo/protobuf/proto"
@@ -21,56 +21,39 @@ type nativeOperator struct {
 }
 
 func (n *nativeOperator) ParseTransaction(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction, transfer *rarimotypes.Transfer) error {
-	verifiedTransfer, err := n.GetOperation(ctx, accounts, instruction)
+	msg, err := n.GetMessage(ctx, accounts, instruction)
 	if err != nil {
 		return err
 	}
 
-	verifiedTransfer.Origin = transfer.Origin
-	verifiedTransfer.Tx = transfer.Tx
-	verifiedTransfer.EventId = transfer.EventId
+	msg.Tx = transfer.Tx
+	msg.EventId = transfer.EventId
 
-	if proto.Equal(verifiedTransfer, transfer) {
+	transferResp, err := rarimotypes.NewQueryClient(n.rarimo).Transfer(ctx, &rarimotypes.QueryGetTransferRequest{Msg: *msg})
+	if err != nil {
+		return err
+	}
+
+	if proto.Equal(&transferResp.Transfer, transfer) {
 		return verifiers.ErrWrongOperationContent
 	}
 
 	return nil
 }
 
-func (n *nativeOperator) GetOperation(ctx context.Context, _ []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.Transfer, error) {
+func (n *nativeOperator) GetMessage(ctx context.Context, _ []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.MsgCreateTransferOp, error) {
 	var args contract.DepositNativeArgs
 	if err := borsh.Deserialize(&args, instruction.Data); err != nil {
 		return nil, err
 	}
 
-	fromOnChainResp, err := tokentypes.NewQueryClient(n.rarimo).OnChainItem(ctx, &tokentypes.QueryGetOnChainItemRequest{Chain: n.chain})
-	if err != nil {
-		return nil, err
+	from := &tokentypes.OnChainItemIndex{
+		Chain:   n.chain,
+		Address: "",
+		TokenID: "",
 	}
 
-	itemResp, err := tokentypes.NewQueryClient(n.rarimo).Item(ctx, &tokentypes.QueryGetItemRequest{Index: fromOnChainResp.Item.Item})
-	if err != nil {
-		return nil, err
-	}
-
-	var from, to *tokentypes.OnChainItemIndex = fromOnChainResp.Item.Index, nil
-	for _, index := range itemResp.Item.OnChain {
-		if index.Chain == args.NetworkTo {
-			to = index
-			break
-		}
-	}
-
-	if to == nil {
-		return nil, verifiers.ErrWrongOperationContent
-	}
-
-	fromDataResp, err := tokentypes.NewQueryClient(n.rarimo).CollectionData(ctx, &tokentypes.QueryGetCollectionDataRequest{Chain: n.chain})
-	if err != nil {
-		return nil, err
-	}
-
-	toDataResp, err := tokentypes.NewQueryClient(n.rarimo).CollectionData(ctx, &tokentypes.QueryGetCollectionDataRequest{Chain: to.Chain, Address: to.Address})
+	to, err := n.getTo(ctx, args.NetworkTo)
 	if err != nil {
 		return nil, err
 	}
@@ -81,12 +64,32 @@ func (n *nativeOperator) GetOperation(ctx context.Context, _ []solana.PublicKey,
 		bundleSeed = hexutil.Encode((*args.BundleSeed)[:])
 	}
 
-	return &rarimotypes.Transfer{
+	return &rarimotypes.MsgCreateTransferOp{
 		Receiver:   args.ReceiverAddress,
-		Amount:     CastAmount(strconv.FormatUint(args.Amount, 10), uint8(fromDataResp.Data.Decimals), uint8(toDataResp.Data.Decimals)),
+		Amount:     fmt.Sprint(args.Amount),
 		BundleData: bundleData,
 		BundleSalt: bundleSeed,
 		From:       from,
 		To:         to,
 	}, nil
+}
+
+func (n *nativeOperator) getTo(ctx context.Context, chain string) (*tokentypes.OnChainItemIndex, error) {
+	fromOnChainResp, err := tokentypes.NewQueryClient(n.rarimo).OnChainItem(ctx, &tokentypes.QueryGetOnChainItemRequest{Chain: n.chain})
+	if err != nil {
+		return nil, err
+	}
+
+	itemResp, err := tokentypes.NewQueryClient(n.rarimo).Item(ctx, &tokentypes.QueryGetItemRequest{Index: fromOnChainResp.Item.Item})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, index := range itemResp.Item.OnChain {
+		if index.Chain == chain {
+			return index, nil
+		}
+	}
+
+	return nil, verifiers.ErrWrongOperationContent
 }

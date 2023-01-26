@@ -24,6 +24,7 @@ type TransferOperator struct {
 	log       *logan.Entry
 	solana    *rpc.Client
 	program   solana.PublicKey
+	chain     string
 	operators map[contract.Instruction]IOperator
 }
 
@@ -31,7 +32,9 @@ type TransferOperator struct {
 var _ verifiers.ITransferOperator = &TransferOperator{}
 
 func (t *TransferOperator) VerifyTransfer(tx, eventId string, transfer *rarimotypes.Transfer) error {
-	// TODO check chain name
+	if transfer.From.Chain != t.chain {
+		return verifiers.ErrUnsupportedNetwork
+	}
 
 	sig, err := solana.SignatureFromBase58(tx)
 	if err != nil {

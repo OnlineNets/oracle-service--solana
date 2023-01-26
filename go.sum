@@ -846,6 +846,10 @@ gitlab.com/rarimo/broadcaster-svc v0.0.0-20221130133449-dfacd1486515 h1:TNIHf2/5
 gitlab.com/rarimo/broadcaster-svc v0.0.0-20221130133449-dfacd1486515/go.mod h1:dqIQPbo4EaIofCrTiv97IUGxLtq9IJkLecuBpdRErIY=
 gitlab.com/rarimo/rarimo-core v0.0.0-20230125193548-afd31bfe9ac1 h1:H89ROhWkIGHpvWoWY+A1Er8Ed8LXgZLV6wU7Ja2JyEw=
 gitlab.com/rarimo/rarimo-core v0.0.0-20230125193548-afd31bfe9ac1/go.mod h1:xjlYTjVFX5CZauaRWTEmLYvqpHtOVaNe6KHgf8hbi0E=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230126104101-64c9b03514bc h1:49DrvQiL6lPH9XhhxfTJpBmTlc7fINZ0vDUgi7Q2PbU=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230126104101-64c9b03514bc/go.mod h1:0XWNH55wHu8adSu5f4go26ZxDp7uUblS6dZNlDrQ0zM=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230126114404-4d71e1a69768 h1:HHjYBjsnIV3aBf/Pn7c0orgPHdf1/PbWLFbla3H3f7k=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230126114404-4d71e1a69768/go.mod h1:xjlYTjVFX5CZauaRWTEmLYvqpHtOVaNe6KHgf8hbi0E=
 gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230125234913-0aac1ada3813 h1:gkh6Mkb0/7cam06/8gqz8WBhsx/NkkLJFWSRYVs57CE=
 gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230125234913-0aac1ada3813/go.mod h1:ZnwDr8hFAdh2TU4IRwS/t2Tf7K6G+6B+afMnt7dQ9Ak=
 gitlab.com/rarimo/solana-program-go v0.0.0-20221213131545-b132d8f4bb2a h1:01s65Gbi7yQL0r1ZbdM6kMSxf7nrFNg72UPPHolk2WE=

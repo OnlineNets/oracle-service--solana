@@ -2,7 +2,7 @@ package voter
 
 import (
 	"context"
-	"strconv"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/gogo/protobuf/proto"
@@ -21,27 +21,27 @@ type ftOperator struct {
 }
 
 func (f *ftOperator) ParseTransaction(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction, transfer *rarimotypes.Transfer) error {
-	verifiedTransfer, err := f.GetOperation(ctx, accounts, instruction)
+	msg, err := f.GetMessage(ctx, accounts, instruction)
 	if err != nil {
 		return err
 	}
 
-	verifiedTransfer.Origin = transfer.Origin
-	verifiedTransfer.Tx = transfer.Tx
-	verifiedTransfer.EventId = transfer.EventId
+	msg.Tx = transfer.Tx
+	msg.EventId = transfer.EventId
 
-	if transfer.Meta == nil {
-		verifiedTransfer.Meta = nil
+	transferResp, err := rarimotypes.NewQueryClient(f.rarimo).Transfer(ctx, &rarimotypes.QueryGetTransferRequest{Msg: *msg})
+	if err != nil {
+		return err
 	}
 
-	if proto.Equal(verifiedTransfer, transfer) {
+	if proto.Equal(&transferResp.Transfer, transfer) {
 		return verifiers.ErrWrongOperationContent
 	}
 
 	return nil
 }
 
-func (f *ftOperator) GetOperation(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.Transfer, error) {
+func (f *ftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.MsgCreateTransferOp, error) {
 	var args contract.DepositFTArgs
 	if err := borsh.Deserialize(&args, instruction.Data); err != nil {
 		return nil, err
@@ -49,35 +49,14 @@ func (f *ftOperator) GetOperation(ctx context.Context, accounts []solana.PublicK
 
 	address := hexutil.Encode(accounts[contract.DepositFTMintIndex].Bytes())
 
-	fromOnChainResp, err := tokentypes.NewQueryClient(f.rarimo).OnChainItem(ctx, &tokentypes.QueryGetOnChainItemRequest{Chain: f.chain, Address: address})
-	if err != nil {
-		return nil, err
+	from := &tokentypes.OnChainItemIndex{
+		Chain:   f.chain,
+		Address: address,
+		TokenID: address,
 	}
 
-	itemResp, err := tokentypes.NewQueryClient(f.rarimo).Item(ctx, &tokentypes.QueryGetItemRequest{Index: fromOnChainResp.Item.Item})
-	if err != nil {
-		return nil, err
-	}
-
-	var from, to *tokentypes.OnChainItemIndex = fromOnChainResp.Item.Index, nil
-	for _, index := range itemResp.Item.OnChain {
-		if index.Chain == args.NetworkTo {
-			to = index
-			break
-		}
-	}
-
+	to, err := f.getTo(ctx, from, args.NetworkTo)
 	if to == nil {
-		return nil, verifiers.ErrWrongOperationContent
-	}
-
-	fromDataResp, err := tokentypes.NewQueryClient(f.rarimo).CollectionData(ctx, &tokentypes.QueryGetCollectionDataRequest{Chain: f.chain, Address: address})
-	if err != nil {
-		return nil, err
-	}
-
-	toDataResp, err := tokentypes.NewQueryClient(f.rarimo).CollectionData(ctx, &tokentypes.QueryGetCollectionDataRequest{Chain: to.Chain, Address: to.Address})
-	if err != nil {
 		return nil, err
 	}
 
@@ -87,13 +66,32 @@ func (f *ftOperator) GetOperation(ctx context.Context, accounts []solana.PublicK
 		bundleSeed = hexutil.Encode((*args.BundleSeed)[:])
 	}
 
-	return &rarimotypes.Transfer{
+	return &rarimotypes.MsgCreateTransferOp{
 		Receiver:   args.ReceiverAddress,
-		Amount:     CastAmount(strconv.FormatUint(args.Amount, 10), uint8(fromDataResp.Data.Decimals), uint8(toDataResp.Data.Decimals)),
+		Amount:     fmt.Sprint(args.Amount),
 		BundleData: bundleData,
 		BundleSalt: bundleSeed,
 		From:       from,
 		To:         to,
-		Meta:       itemResp.Item.Meta,
 	}, nil
+}
+
+func (f *ftOperator) getTo(ctx context.Context, from *tokentypes.OnChainItemIndex, chain string) (*tokentypes.OnChainItemIndex, error) {
+	fromOnChainResp, err := tokentypes.NewQueryClient(f.rarimo).OnChainItem(ctx, &tokentypes.QueryGetOnChainItemRequest{Chain: f.chain, Address: from.Address})
+	if err != nil {
+		return nil, err
+	}
+
+	itemResp, err := tokentypes.NewQueryClient(f.rarimo).Item(ctx, &tokentypes.QueryGetItemRequest{Index: fromOnChainResp.Item.Item})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, index := range itemResp.Item.OnChain {
+		if index.Chain == chain {
+			return index, nil
+		}
+	}
+
+	return nil, verifiers.ErrWrongOperationContent
 }

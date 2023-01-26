@@ -1,4 +1,4 @@
-package parser
+package saver
 
 import (
 	"context"
@@ -16,7 +16,7 @@ const (
 )
 
 type IOperator interface {
-	GetOperation(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.Transfer, error)
+	GetMessage(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.MsgCreateTransferOp, error)
 }
 
 type Service struct {
@@ -35,23 +35,14 @@ func (s *Service) ParseTransaction(sig solana.Signature, tx *solana.Transaction)
 	for index, instruction := range tx.Message.Instructions {
 		if accounts[instruction.ProgramIDIndex] == s.program {
 			if operator, ok := s.operators[contract.Instruction(instruction.Data[DataInstructionCodeIndex])]; ok {
-				transfer, err := operator.GetOperation(context.TODO(), getInstructionAccounts(accounts, instruction.Accounts), instruction)
+				msg, err := operator.GetMessage(context.TODO(), getInstructionAccounts(accounts, instruction.Accounts), instruction)
 				if err != nil {
 					return err
 				}
 
-				msg := &rarimotypes.MsgCreateTransferOp{
-					Creator:    s.broadcaster.Sender(),
-					Tx:         tx.String(),
-					EventId:    fmt.Sprint(index),
-					Receiver:   transfer.Receiver,
-					Amount:     "", // TODO
-					BundleData: transfer.BundleData,
-					BundleSalt: transfer.BundleSalt,
-					From:       transfer.From,
-					To:         transfer.To,
-					Meta:       transfer.Meta,
-				}
+				msg.Creator = s.broadcaster.Sender()
+				msg.Tx = sig.String()
+				msg.EventId = fmt.Sprint(index)
 
 				if err := s.broadcaster.BroadcastTx(context.TODO(), msg); err != nil {
 					return err

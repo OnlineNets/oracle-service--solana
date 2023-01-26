@@ -23,23 +23,32 @@ type nftOperator struct {
 }
 
 func (f *nftOperator) ParseTransaction(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction, transfer *rarimotypes.Transfer) error {
-	verifiedTransfer, err := f.GetOperation(ctx, accounts, instruction)
+	msg, err := f.GetMessage(ctx, accounts, instruction)
 	if err != nil {
 		return err
 	}
 
-	verifiedTransfer.Origin = transfer.Origin
-	verifiedTransfer.Tx = transfer.Tx
-	verifiedTransfer.EventId = transfer.EventId
+	msg.Tx = transfer.Tx
+	msg.EventId = transfer.EventId
 
-	if proto.Equal(verifiedTransfer, transfer) {
+	transferResp, err := rarimotypes.NewQueryClient(f.rarimo).Transfer(ctx, &rarimotypes.QueryGetTransferRequest{Msg: *msg})
+	if err != nil {
+		return err
+	}
+
+	// Disable meta check if item has been already created
+	if transferResp.Transfer.Meta == nil {
+		transfer.Meta = nil
+	}
+
+	if proto.Equal(&transferResp.Transfer, transfer) {
 		return verifiers.ErrWrongOperationContent
 	}
 
 	return nil
 }
 
-func (f *nftOperator) GetOperation(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.Transfer, error) {
+func (f *nftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.MsgCreateTransferOp, error) {
 	var args contract.DepositNFTArgs
 	if err := borsh.Deserialize(&args, instruction.Data); err != nil {
 		return nil, err
@@ -61,31 +70,14 @@ func (f *nftOperator) GetOperation(ctx context.Context, accounts []solana.Public
 		TokenID: tokenId,
 	}
 
-	dataResp, err := tokentypes.NewQueryClient(f.rarimo).CollectionData(ctx, &tokentypes.QueryGetCollectionDataRequest{Chain: f.chain, Address: address})
-	if err != nil {
-		return nil, err
-	}
-
-	collectionResp, err := tokentypes.NewQueryClient(f.rarimo).Collection(ctx, &tokentypes.QueryGetCollectionRequest{Index: dataResp.Data.Collection})
-	if err != nil {
-		return nil, err
-	}
-
 	to := &tokentypes.OnChainItemIndex{
 		Chain:   args.NetworkTo,
-		Address: "",
-		TokenID: "", // TODO
+		TokenID: tokenId,
 	}
 
-	for _, index := range collectionResp.Collection.Data {
-		if index.Chain == args.NetworkTo {
-			to.Address = index.Address
-			break
-		}
-	}
-
-	if to.Address == "" {
-		return nil, verifiers.ErrWrongOperationContent
+	to.Address, err = f.getTargetAddress(ctx, from, args.NetworkTo)
+	if err != nil {
+		return nil, err
 	}
 
 	var bundleData, bundleSeed string
@@ -99,7 +91,7 @@ func (f *nftOperator) GetOperation(ctx context.Context, accounts []solana.Public
 		return nil, err
 	}
 
-	return &rarimotypes.Transfer{
+	return &rarimotypes.MsgCreateTransferOp{
 		Receiver:   args.ReceiverAddress,
 		Amount:     "1",
 		BundleData: bundleData,
@@ -108,6 +100,26 @@ func (f *nftOperator) GetOperation(ctx context.Context, accounts []solana.Public
 		To:         to,
 		Meta:       meta,
 	}, nil
+}
+
+func (f *nftOperator) getTargetAddress(ctx context.Context, from *tokentypes.OnChainItemIndex, toChain string) (string, error) {
+	dataResp, err := tokentypes.NewQueryClient(f.rarimo).CollectionData(ctx, &tokentypes.QueryGetCollectionDataRequest{Chain: from.Chain, Address: from.Address})
+	if err != nil {
+		return "", err
+	}
+
+	collectionResp, err := tokentypes.NewQueryClient(f.rarimo).Collection(ctx, &tokentypes.QueryGetCollectionRequest{Index: dataResp.Data.Collection})
+	if err != nil {
+		return "", err
+	}
+
+	for _, index := range collectionResp.Collection.Data {
+		if index.Chain == toChain {
+			return index.Address, nil
+		}
+	}
+
+	return "", verifiers.ErrWrongOperationContent
 }
 
 func (f *nftOperator) getItemMeta(from *tokentypes.OnChainItemIndex) (*tokentypes.ItemMetadata, error) {
@@ -124,7 +136,7 @@ func (f *nftOperator) getItemMeta(from *tokentypes.OnChainItemIndex) (*tokentype
 	return &tokentypes.ItemMetadata{
 		ImageUri:  imageUrl,
 		ImageHash: imageHash,
-		Seed:      "", // TODO
+		Seed:      "", // Empty because we are creating item on Solana chain => Solana is a native chain for that token.
 		Name:      metadata.Data.Name,
 		Symbol:    metadata.Data.Symbol,
 		Uri:       metadata.Data.URI,
