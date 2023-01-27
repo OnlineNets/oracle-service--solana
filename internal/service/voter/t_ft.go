@@ -8,6 +8,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/near/borsh-go"
 	"github.com/olegfomenko/solana-go"
+	"gitlab.com/distributed_lab/logan/v3/errors"
 	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
 	tokentypes "gitlab.com/rarimo/rarimo-core/x/tokenmanager/types"
 	"gitlab.com/rarimo/savers/saver-grpc-lib/voter/verifiers"
@@ -30,7 +31,7 @@ func NewFTOperator(chain string, rarimo *grpc.ClientConn) *ftOperator {
 func (f *ftOperator) ParseTransaction(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction, transfer *rarimotypes.Transfer) error {
 	msg, err := f.GetMessage(ctx, accounts, instruction)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error getting message")
 	}
 
 	msg.Tx = transfer.Tx
@@ -38,7 +39,7 @@ func (f *ftOperator) ParseTransaction(ctx context.Context, accounts []solana.Pub
 
 	transferResp, err := rarimotypes.NewQueryClient(f.rarimo).Transfer(ctx, &rarimotypes.QueryGetTransferRequest{Msg: *msg})
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error querying transfer from core")
 	}
 
 	if proto.Equal(&transferResp.Transfer, transfer) {
@@ -51,7 +52,7 @@ func (f *ftOperator) ParseTransaction(ctx context.Context, accounts []solana.Pub
 func (f *ftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.MsgCreateTransferOp, error) {
 	var args contract.DepositFTArgs
 	if err := borsh.Deserialize(&args, instruction.Data); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error desser tx args")
 	}
 
 	address := hexutil.Encode(accounts[contract.DepositFTMintIndex].Bytes())
@@ -85,12 +86,12 @@ func (f *ftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey
 func (f *ftOperator) getTo(ctx context.Context, from *tokentypes.OnChainItemIndex, chain string) (*tokentypes.OnChainItemIndex, error) {
 	fromOnChainResp, err := tokentypes.NewQueryClient(f.rarimo).OnChainItem(ctx, &tokentypes.QueryGetOnChainItemRequest{Chain: f.chain, Address: from.Address})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error fetching on chain item")
 	}
 
 	itemResp, err := tokentypes.NewQueryClient(f.rarimo).Item(ctx, &tokentypes.QueryGetItemRequest{Index: fromOnChainResp.Item.Item})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error fetching item")
 	}
 
 	for _, index := range itemResp.Item.OnChain {

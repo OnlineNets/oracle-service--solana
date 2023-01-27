@@ -8,6 +8,7 @@ import (
 	"github.com/near/borsh-go"
 	"github.com/olegfomenko/solana-go"
 	"github.com/olegfomenko/solana-go/rpc"
+	"gitlab.com/distributed_lab/logan/v3/errors"
 	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
 	tokentypes "gitlab.com/rarimo/rarimo-core/x/tokenmanager/types"
 	"gitlab.com/rarimo/savers/saver-grpc-lib/voter/verifiers"
@@ -33,7 +34,7 @@ func NewNFTOperator(chain string, solana *rpc.Client, rarimo *grpc.ClientConn) *
 func (f *nftOperator) ParseTransaction(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction, transfer *rarimotypes.Transfer) error {
 	msg, err := f.GetMessage(ctx, accounts, instruction)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error getting message")
 	}
 
 	msg.Tx = transfer.Tx
@@ -41,7 +42,7 @@ func (f *nftOperator) ParseTransaction(ctx context.Context, accounts []solana.Pu
 
 	transferResp, err := rarimotypes.NewQueryClient(f.rarimo).Transfer(ctx, &rarimotypes.QueryGetTransferRequest{Msg: *msg})
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error querying transfer from core")
 	}
 
 	// Disable meta check if item has been already created
@@ -59,13 +60,13 @@ func (f *nftOperator) ParseTransaction(ctx context.Context, accounts []solana.Pu
 func (f *nftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.MsgCreateTransferOp, error) {
 	var args contract.DepositNFTArgs
 	if err := borsh.Deserialize(&args, instruction.Data); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error desser tx args")
 	}
 
 	tokenId := hexutil.Encode(accounts[contract.DepositNFTMintIndex].Bytes())
 	address, err := f.getTokenCollectionAddress(accounts[contract.DepositNFTMintIndex])
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error getting collection address")
 	}
 
 	if address == "" {
@@ -112,12 +113,12 @@ func (f *nftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKe
 func (f *nftOperator) getTargetAddress(ctx context.Context, from *tokentypes.OnChainItemIndex, toChain string) (string, error) {
 	dataResp, err := tokentypes.NewQueryClient(f.rarimo).CollectionData(ctx, &tokentypes.QueryGetCollectionDataRequest{Chain: from.Chain, Address: from.Address})
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "error fetching collection data")
 	}
 
 	collectionResp, err := tokentypes.NewQueryClient(f.rarimo).Collection(ctx, &tokentypes.QueryGetCollectionRequest{Index: dataResp.Data.Collection})
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "error fetching collection ")
 	}
 
 	for _, index := range collectionResp.Collection.Data {
@@ -132,12 +133,12 @@ func (f *nftOperator) getTargetAddress(ctx context.Context, from *tokentypes.OnC
 func (f *nftOperator) getItemMeta(from *tokentypes.OnChainItemIndex) (*tokentypes.ItemMetadata, error) {
 	metadata, err := f.getMetadata(solana.MustPublicKeyFromBase58(from.TokenID))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error fetching metadata from chain")
 	}
 
 	imageUrl, imageHash, err := verifiers.GetImage(metadata.Data.URI)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error fetching image")
 	}
 
 	return &tokentypes.ItemMetadata{
@@ -153,12 +154,12 @@ func (f *nftOperator) getItemMeta(from *tokentypes.OnChainItemIndex) (*tokentype
 func (f *nftOperator) getMetadata(mint solana.PublicKey) (*metaplex.Metadata, error) {
 	metadataAddress, _, err := solana.FindTokenMetadataAddress(mint)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error generating metadata key")
 	}
 
 	metadataInfo, err := f.solana.GetAccountInfo(context.TODO(), metadataAddress)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error fetching metadata account info")
 	}
 
 	metadata := new(metaplex.Metadata)
@@ -168,7 +169,7 @@ func (f *nftOperator) getMetadata(mint solana.PublicKey) (*metaplex.Metadata, er
 func (f *nftOperator) getTokenCollectionAddress(mint solana.PublicKey) (string, error) {
 	metadata, err := f.getMetadata(mint)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "error getting metadata")
 	}
 
 	// TODO maybe check for zero collection address instead of verified value

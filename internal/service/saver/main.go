@@ -6,6 +6,7 @@ import (
 
 	"github.com/olegfomenko/solana-go"
 	"gitlab.com/distributed_lab/logan/v3"
+	"gitlab.com/distributed_lab/logan/v3/errors"
 	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
 	"gitlab.com/rarimo/savers/saver-grpc-lib/broadcaster"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
@@ -51,7 +52,7 @@ func (s *TxProcessor) ProcessTransaction(ctx context.Context, sig solana.Signatu
 			if operator, ok := s.operators[contract.Instruction(instruction.Data[DataInstructionCodeIndex])]; ok {
 				msg, err := operator.GetMessage(ctx, service.GetInstructionAccounts(accounts, instruction.Accounts), instruction)
 				if err != nil {
-					return err
+					return errors.Wrap(err, "error getting message")
 				}
 
 				msg.Creator = s.broadcaster.Sender()
@@ -59,7 +60,7 @@ func (s *TxProcessor) ProcessTransaction(ctx context.Context, sig solana.Signatu
 				msg.EventId = fmt.Sprint(index)
 
 				if err := s.broadcaster.BroadcastTx(ctx, msg); err != nil {
-					return err
+					return errors.Wrap(err, "error broadcasting tx")
 				}
 			}
 		}

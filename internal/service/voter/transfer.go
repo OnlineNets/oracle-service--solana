@@ -28,6 +28,7 @@ type TransferOperator struct {
 
 func NewTransferOperator(cfg config.Config) *TransferOperator {
 	return &TransferOperator{
+		solana:  cfg.SolanaRPC(),
 		program: cfg.ListenConf().ProgramId,
 		chain:   cfg.ListenConf().Chain,
 		operators: map[contract.Instruction]IOperator{
