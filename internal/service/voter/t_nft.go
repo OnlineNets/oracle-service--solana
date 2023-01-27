@@ -50,7 +50,7 @@ func (f *nftOperator) ParseTransaction(ctx context.Context, accounts []solana.Pu
 		transfer.Meta = nil
 	}
 
-	if proto.Equal(&transferResp.Transfer, transfer) {
+	if !proto.Equal(&transferResp.Transfer, transfer) {
 		return verifiers.ErrWrongOperationContent
 	}
 

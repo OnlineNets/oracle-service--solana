@@ -42,7 +42,7 @@ func (f *ftOperator) ParseTransaction(ctx context.Context, accounts []solana.Pub
 		return errors.Wrap(err, "error querying transfer from core")
 	}
 
-	if proto.Equal(&transferResp.Transfer, transfer) {
+	if !proto.Equal(&transferResp.Transfer, transfer) {
 		return verifiers.ErrWrongOperationContent
 	}
 
