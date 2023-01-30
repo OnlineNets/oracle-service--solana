@@ -96,6 +96,7 @@ func (f *nftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKe
 
 	msg := &rarimotypes.MsgCreateTransferOp{
 		Receiver: args.ReceiverAddress,
+		Sender:   accounts[contract.DepositNFTOwnerIndex].String(),
 		Amount:   "1",
 		From:     from,
 		To:       to,

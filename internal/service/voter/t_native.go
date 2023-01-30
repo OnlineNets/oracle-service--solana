@@ -49,7 +49,7 @@ func (n *nativeOperator) ParseTransaction(ctx context.Context, accounts []solana
 	return nil
 }
 
-func (n *nativeOperator) GetMessage(ctx context.Context, _ []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.MsgCreateTransferOp, error) {
+func (n *nativeOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.MsgCreateTransferOp, error) {
 	var args contract.DepositNativeArgs
 	if err := borsh.Deserialize(&args, instruction.Data); err != nil {
 		return nil, errors.Wrap(err, "error desser tx args")
@@ -68,6 +68,7 @@ func (n *nativeOperator) GetMessage(ctx context.Context, _ []solana.PublicKey, i
 
 	msg := &rarimotypes.MsgCreateTransferOp{
 		Receiver: args.ReceiverAddress,
+		Sender:   accounts[contract.DepositNativeOwnerIndex].String(),
 		Amount:   fmt.Sprint(args.Amount),
 		From:     from,
 		To:       to,

@@ -58,7 +58,7 @@ func Run(args []string) bool {
 		// Running catchup for unvoted operations
 		voter.NewCatchupper(cfg.Cosmos(), v, cfg.Log()).Run(context.TODO())
 		// Running subscriber for new operations
-		go voter.NewTransferSubscriber(v, cfg.Tendermint(), cfg.Cosmos(), cfg.Log()).Run(context.Background())
+		go voter.NewTransferSubscriber(v, cfg.Tendermint(), cfg.Cosmos(), cfg.Log(), cfg.Subscriber()).Run(context.Background())
 
 		// Running GRPC server
 		err = grpc.NewSaverService(cfg.Log(), cfg.Listener(), v).Run()
@@ -82,7 +82,7 @@ func Run(args []string) bool {
 		voter.NewCatchupper(cfg.Cosmos(), v, cfg.Log()).Run(context.TODO())
 
 		// Running subscriber for new operations
-		go voter.NewTransferSubscriber(v, cfg.Tendermint(), cfg.Cosmos(), cfg.Log()).Run(context.Background())
+		go voter.NewTransferSubscriber(v, cfg.Tendermint(), cfg.Cosmos(), cfg.Log(), cfg.Subscriber()).Run(context.Background())
 		// Running subscriber for new transaction on bridge
 		go listener.NewService(cfg).Listen(context.Background())
 

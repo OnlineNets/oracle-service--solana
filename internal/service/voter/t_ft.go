@@ -69,6 +69,7 @@ func (f *ftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey
 	}
 
 	msg := &rarimotypes.MsgCreateTransferOp{
+		Sender:   accounts[contract.DepositFTOwnerIndex].String(),
 		Receiver: args.ReceiverAddress,
 		Amount:   fmt.Sprint(args.Amount),
 		From:     from,

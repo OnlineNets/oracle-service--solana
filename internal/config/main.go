@@ -6,6 +6,7 @@ import (
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/rarimo/savers/saver-grpc-lib/broadcaster"
+	"gitlab.com/rarimo/savers/saver-grpc-lib/voter"
 	"google.golang.org/grpc"
 )
 
@@ -13,6 +14,7 @@ type Config interface {
 	comfig.Logger
 	comfig.Listenerer
 	broadcaster.Broadcasterer
+	voter.Subscriberer
 
 	Cosmos() *grpc.ClientConn
 	Tendermint() *http.HTTP
@@ -25,6 +27,7 @@ type config struct {
 	comfig.Logger
 	comfig.Listenerer
 	broadcaster.Broadcasterer
+	voter.Subscriberer
 
 	cosmos     comfig.Once
 	tendermint comfig.Once
@@ -41,5 +44,6 @@ func New(getter kv.Getter) Config {
 		Logger:        comfig.NewLogger(getter, comfig.LoggerOpts{}),
 		Listenerer:    comfig.NewListenerer(getter),
 		Broadcasterer: broadcaster.New(getter),
+		Subscriberer:  voter.NewSubscriberer(getter),
 	}
 }
