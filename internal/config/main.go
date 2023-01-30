@@ -5,7 +5,6 @@ import (
 	"github.com/tendermint/tendermint/rpc/client/http"
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
-	"gitlab.com/distributed_lab/kit/pgdb"
 	"gitlab.com/rarimo/savers/saver-grpc-lib/broadcaster"
 	"google.golang.org/grpc"
 )
@@ -13,7 +12,6 @@ import (
 type Config interface {
 	comfig.Logger
 	comfig.Listenerer
-	pgdb.Databaser
 	broadcaster.Broadcasterer
 
 	Cosmos() *grpc.ClientConn
@@ -26,7 +24,6 @@ type Config interface {
 type config struct {
 	comfig.Logger
 	comfig.Listenerer
-	pgdb.Databaser
 	broadcaster.Broadcasterer
 
 	cosmos     comfig.Once
@@ -43,7 +40,6 @@ func New(getter kv.Getter) Config {
 		getter:        getter,
 		Logger:        comfig.NewLogger(getter, comfig.LoggerOpts{}),
 		Listenerer:    comfig.NewListenerer(getter),
-		Databaser:     pgdb.NewDatabaser(getter),
 		Broadcasterer: broadcaster.New(getter),
 	}
 }
