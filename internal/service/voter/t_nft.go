@@ -146,8 +146,6 @@ func (f *nftOperator) getItemMeta(from *tokentypes.OnChainItemIndex) (*tokentype
 		ImageUri:  imageUrl,
 		ImageHash: imageHash,
 		Seed:      "", // Empty because we are creating item on Solana chain => Solana is a native chain for that token.
-		Name:      metadata.Data.Name,
-		Symbol:    metadata.Data.Symbol,
 		Uri:       metadata.Data.URI,
 	}, nil
 }
