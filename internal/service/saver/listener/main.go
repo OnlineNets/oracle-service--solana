@@ -59,7 +59,8 @@ func (s *Service) Listen(ctx context.Context) {
 		default:
 			got, err := sub.Recv()
 			if err != nil {
-				panic(err)
+				s.log.WithError(err).Error("failed to receive transaction")
+				continue
 			}
 
 			tx, err := service.GetTransaction(ctx, s.solana, got.Value.Signature)
