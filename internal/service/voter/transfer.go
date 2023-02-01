@@ -32,8 +32,8 @@ func NewTransferOperator(cfg config.Config) *TransferOperator {
 		program: cfg.ListenConf().ProgramId,
 		chain:   cfg.ListenConf().Chain,
 		operators: map[contract.Instruction]IOperator{
-			contract.InstructionDepositNative: NewNativeOperator(cfg.ListenConf().Chain, cfg.Cosmos()),
-			contract.InstructionDepositFT:     NewFTOperator(cfg.ListenConf().Chain, cfg.Cosmos()),
+			contract.InstructionDepositNative: NewNativeOperator(cfg.ListenConf().Chain, cfg.Log(), cfg.Cosmos()),
+			contract.InstructionDepositFT:     NewFTOperator(cfg.ListenConf().Chain, cfg.Log(), cfg.Cosmos()),
 			contract.InstructionDepositNFT:    NewNFTOperator(cfg.ListenConf().Chain, cfg.SolanaRPC(), cfg.Cosmos()),
 		},
 	}

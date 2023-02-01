@@ -8,6 +8,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/near/borsh-go"
 	"github.com/olegfomenko/solana-go"
+	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
 	tokentypes "gitlab.com/rarimo/rarimo-core/x/tokenmanager/types"
@@ -18,12 +19,14 @@ import (
 
 type nativeOperator struct {
 	chain  string
+	log    *logan.Entry
 	rarimo *grpc.ClientConn
 }
 
-func NewNativeOperator(chain string, rarimo *grpc.ClientConn) *nativeOperator {
+func NewNativeOperator(chain string, log *logan.Entry, rarimo *grpc.ClientConn) *nativeOperator {
 	return &nativeOperator{
 		chain:  chain,
+		log:    log,
 		rarimo: rarimo,
 	}
 }
@@ -85,12 +88,14 @@ func (n *nativeOperator) GetMessage(ctx context.Context, accounts []solana.Publi
 func (n *nativeOperator) getTo(ctx context.Context, chain string) (*tokentypes.OnChainItemIndex, error) {
 	fromOnChainResp, err := tokentypes.NewQueryClient(n.rarimo).OnChainItem(ctx, &tokentypes.QueryGetOnChainItemRequest{Chain: n.chain})
 	if err != nil {
-		return nil, errors.Wrap(err, "error fetching on chain item")
+		n.log.WithError(err).Error("error fetching on chain item")
+		return nil, verifiers.ErrWrongOperationContent
 	}
 
 	itemResp, err := tokentypes.NewQueryClient(n.rarimo).Item(ctx, &tokentypes.QueryGetItemRequest{Index: fromOnChainResp.Item.Item})
 	if err != nil {
-		return nil, errors.Wrap(err, "error fetching item")
+		n.log.WithError(err).Error("error fetching item")
+		return nil, verifiers.ErrWrongOperationContent
 	}
 
 	for _, index := range itemResp.Item.OnChain {

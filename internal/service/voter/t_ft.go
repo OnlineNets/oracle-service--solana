@@ -8,6 +8,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/near/borsh-go"
 	"github.com/olegfomenko/solana-go"
+	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
 	tokentypes "gitlab.com/rarimo/rarimo-core/x/tokenmanager/types"
@@ -18,12 +19,14 @@ import (
 
 type ftOperator struct {
 	chain  string
+	log    *logan.Entry
 	rarimo *grpc.ClientConn
 }
 
-func NewFTOperator(chain string, rarimo *grpc.ClientConn) *ftOperator {
+func NewFTOperator(chain string, log *logan.Entry, rarimo *grpc.ClientConn) *ftOperator {
 	return &ftOperator{
 		chain:  chain,
+		log:    log,
 		rarimo: rarimo,
 	}
 }
@@ -87,12 +90,14 @@ func (f *ftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey
 func (f *ftOperator) getTo(ctx context.Context, from *tokentypes.OnChainItemIndex, chain string) (*tokentypes.OnChainItemIndex, error) {
 	fromOnChainResp, err := tokentypes.NewQueryClient(f.rarimo).OnChainItem(ctx, &tokentypes.QueryGetOnChainItemRequest{Chain: f.chain, Address: from.Address})
 	if err != nil {
-		return nil, errors.Wrap(err, "error fetching on chain item")
+		f.log.WithError(err).Error("error fetching on chain item")
+		return nil, verifiers.ErrWrongOperationContent
 	}
 
 	itemResp, err := tokentypes.NewQueryClient(f.rarimo).Item(ctx, &tokentypes.QueryGetItemRequest{Index: fromOnChainResp.Item.Item})
 	if err != nil {
-		return nil, errors.Wrap(err, "error fetching item")
+		f.log.WithError(err).Error("error fetching item")
+		return nil, verifiers.ErrWrongOperationContent
 	}
 
 	for _, index := range itemResp.Item.OnChain {

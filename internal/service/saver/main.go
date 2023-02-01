@@ -36,8 +36,8 @@ func NewTxProcessor(cfg config.Config) *TxProcessor {
 		program:     cfg.ListenConf().ProgramId,
 		broadcaster: cfg.Broadcaster(),
 		operators: map[contract.Instruction]IOperator{
-			contract.InstructionDepositNative: voter.NewNativeOperator(cfg.ListenConf().Chain, cfg.Cosmos()),
-			contract.InstructionDepositFT:     voter.NewFTOperator(cfg.ListenConf().Chain, cfg.Cosmos()),
+			contract.InstructionDepositNative: voter.NewNativeOperator(cfg.ListenConf().Chain, cfg.Log(), cfg.Cosmos()),
+			contract.InstructionDepositFT:     voter.NewFTOperator(cfg.ListenConf().Chain, cfg.Log(), cfg.Cosmos()),
 			contract.InstructionDepositNFT:    voter.NewNFTOperator(cfg.ListenConf().Chain, cfg.SolanaRPC(), cfg.Cosmos()),
 		},
 	}
