@@ -15,6 +15,8 @@ import (
 	"gitlab.com/rarimo/solana-program-go/contract"
 	"gitlab.com/rarimo/solana-program-go/metaplex"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type nftOperator struct {
@@ -79,12 +81,7 @@ func (f *nftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKe
 		TokenID: tokenId,
 	}
 
-	to := &tokentypes.OnChainItemIndex{
-		Chain:   args.NetworkTo,
-		TokenID: tokenId,
-	}
-
-	to.Address, err = f.getTargetAddress(ctx, from, args.NetworkTo)
+	to, err := f.getTargetOnChainItem(ctx, from, args.NetworkTo)
 	if err != nil {
 		return nil, err
 	}
@@ -111,24 +108,117 @@ func (f *nftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKe
 	return msg, nil
 }
 
-func (f *nftOperator) getTargetAddress(ctx context.Context, from *tokentypes.OnChainItemIndex, toChain string) (string, error) {
-	dataResp, err := tokentypes.NewQueryClient(f.rarimo).CollectionData(ctx, &tokentypes.QueryGetCollectionDataRequest{Chain: from.Chain, Address: from.Address})
-	if err != nil {
-		return "", errors.Wrap(err, "error fetching collection data")
+// getTargetOnChainItem generates target OnChainItem based on current item information and its native mint information
+// If target exists => use its data
+// If target chain is Solana => target id will be equal to the current one
+// If native chain is Solana => target id will be equal to the current one
+// If native chain is EVM => target id will be equal to the EVM
+// If native chain is Near => target id will be equal to the hex(near id str)
+func (f *nftOperator) getTargetOnChainItem(ctx context.Context, from *tokentypes.OnChainItemIndex, toChain string) (*tokentypes.OnChainItemIndex, error) {
+	// 1. checking corner cases (from == to)
+	if from.Chain == toChain {
+		return from, nil
 	}
 
-	collectionResp, err := tokentypes.NewQueryClient(f.rarimo).Collection(ctx, &tokentypes.QueryGetCollectionRequest{Index: dataResp.Data.Collection})
+	// 2. trying to check the existence of target OnChainItem
+	to, err := f.tryGetOnChainItem(ctx, from, toChain)
 	if err != nil {
-		return "", errors.Wrap(err, "error fetching collection ")
+		return nil, err
+	}
+
+	// 3. if exists - return it
+	if to != nil {
+		return to, nil
+	}
+
+	// 4. getting target data (should exist)
+	targetDataIndex, err := f.getTargetDataIndex(ctx, from, toChain)
+	if err != nil {
+		return nil, err
+	}
+
+	// 5. getting native collection data (should exist)
+	nativeCollectionData, err := f.getNativeData(ctx, from)
+	if err != nil {
+		return nil, err
+	}
+
+	// 6. If its equal to the current chain
+	if nativeCollectionData.Index.Chain == from.Chain {
+		return &tokentypes.OnChainItemIndex{
+			Chain:   targetDataIndex.Chain,
+			Address: targetDataIndex.Address,
+			TokenID: from.TokenID,
+		}, nil
+	}
+
+	// 7. getting native OnChainItem (should exist)
+	native, err := f.tryGetOnChainItem(ctx, from, nativeCollectionData.Index.Chain)
+	if err != nil {
+		return nil, err
+	}
+
+	if native == nil {
+		return nil, verifiers.ErrWrongOperationContent
+	}
+
+	// TODO manage several solana networks supported
+	// 8. then target token id is equal to the native token id (in case of Near chain it already store in hex format)
+	return &tokentypes.OnChainItemIndex{
+		Chain:   targetDataIndex.Chain,
+		Address: targetDataIndex.Address,
+		TokenID: native.TokenID,
+	}, nil
+
+}
+
+func (f *nftOperator) tryGetOnChainItem(ctx context.Context, from *tokentypes.OnChainItemIndex, toChain string) (*tokentypes.OnChainItemIndex, error) {
+	toOnChainItemResp, err := tokentypes.NewQueryClient(f.rarimo).OnChainItemByOther(ctx, &tokentypes.QueryGetOnChainItemByOtherRequest{
+		Chain:       from.Chain,
+		Address:     from.Address,
+		TokenID:     from.TokenID,
+		TargetChain: toChain,
+	})
+
+	if err != nil {
+		res, ok := status.FromError(err)
+		if ok && res.Code() == codes.NotFound {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return toOnChainItemResp.Item.Index, nil
+}
+
+func (f *nftOperator) getNativeData(ctx context.Context, from *tokentypes.OnChainItemIndex) (*tokentypes.CollectionData, error) {
+	collectionResp, err := tokentypes.NewQueryClient(f.rarimo).CollectionByCollectionData(ctx, &tokentypes.QueryGetCollectionByCollectionDataRequest{Chain: from.Chain, Address: from.Address})
+	if err != nil {
+		return nil, errors.Wrap(err, "error fetching collection")
+	}
+
+	nativeCollectionData, err := tokentypes.NewQueryClient(f.rarimo).NativeCollectionData(ctx, &tokentypes.QueryGetNativeCollectionDataRequest{Collection: collectionResp.Collection.Index})
+	if err != nil {
+		return nil, errors.Wrap(err, "error fetching native collection data")
+	}
+
+	return &nativeCollectionData.Data, nil
+}
+
+func (f *nftOperator) getTargetDataIndex(ctx context.Context, from *tokentypes.OnChainItemIndex, targetChain string) (*tokentypes.CollectionDataIndex, error) {
+	collectionResp, err := tokentypes.NewQueryClient(f.rarimo).CollectionByCollectionData(ctx, &tokentypes.QueryGetCollectionByCollectionDataRequest{Chain: from.Chain, Address: from.Address})
+	if err != nil {
+		return nil, errors.Wrap(err, "error fetching collection")
 	}
 
 	for _, index := range collectionResp.Collection.Data {
-		if index.Chain == toChain {
-			return index.Address, nil
+		if index.Chain == targetChain {
+			return index, nil
 		}
 	}
 
-	return "", verifiers.ErrWrongOperationContent
+	return nil, verifiers.ErrWrongOperationContent
 }
 
 func (f *nftOperator) getItemMeta(from *tokentypes.OnChainItemIndex) (*tokentypes.ItemMetadata, error) {

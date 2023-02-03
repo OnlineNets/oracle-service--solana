@@ -916,6 +916,12 @@ gitlab.com/rarimo/rarimo-core v0.0.0-20230130150127-b8e98054fe4b h1:dAIdDvwnBN14
 gitlab.com/rarimo/rarimo-core v0.0.0-20230130150127-b8e98054fe4b/go.mod h1:0XWNH55wHu8adSu5f4go26ZxDp7uUblS6dZNlDrQ0zM=
 gitlab.com/rarimo/rarimo-core v0.0.0-20230201182240-b2b174c1751c h1:RI6skiEYmXRujV/MXcN1yw4daon4Yd6XxLk0481TpW0=
 gitlab.com/rarimo/rarimo-core v0.0.0-20230201182240-b2b174c1751c/go.mod h1:xjlYTjVFX5CZauaRWTEmLYvqpHtOVaNe6KHgf8hbi0E=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230202162251-43e73ae57590 h1:zVw1KtgRXaoumSBU8t+FVX9GZRtZZfHBccNzHLOaiFY=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230202162251-43e73ae57590/go.mod h1:0XWNH55wHu8adSu5f4go26ZxDp7uUblS6dZNlDrQ0zM=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230202163403-977474bf11e0 h1:QbpTOggldQySAIOSyxhs0ezdCW4Sjh9l9PkvxoG9ae8=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230202163403-977474bf11e0/go.mod h1:0XWNH55wHu8adSu5f4go26ZxDp7uUblS6dZNlDrQ0zM=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230203123832-78dfff3d1842 h1:1y+ZIXW4roBL1Lvy8sQxPUX24FMrgk6kOBp7KyXqZA4=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230203123832-78dfff3d1842/go.mod h1:0XWNH55wHu8adSu5f4go26ZxDp7uUblS6dZNlDrQ0zM=
 gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230130150312-3b834cd09f9b h1:I4MC0TKcQqNGnh3DQT3n17S8lvzXinueum3RbUGJvkU=
 gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230130150312-3b834cd09f9b/go.mod h1:MpQLjHSVV0icCUkqHHyeZZlrkoQosgAEz5iolUVih80=
 gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230130150751-5ab9b2b3f270 h1:Du31ueejsWwFeyop/emTodxmtfM+pu7U5VhecXpQvDQ=
