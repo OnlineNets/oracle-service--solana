@@ -123,7 +123,7 @@ func (f *nftOperator) getTargetOnChainItem(ctx context.Context, from *tokentypes
 	// 2. trying to check the existence of target OnChainItem
 	to, err := f.tryGetOnChainItem(ctx, from, toChain)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "unexpected error during fetching on chain item")
 	}
 
 	// 3. if exists - return it
@@ -134,13 +134,13 @@ func (f *nftOperator) getTargetOnChainItem(ctx context.Context, from *tokentypes
 	// 4. getting target data (should exist)
 	targetDataIndex, err := f.getTargetDataIndex(ctx, from, toChain)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "unexpected error during fetching target collection data index")
 	}
 
 	// 5. getting native collection data (should exist)
 	nativeCollectionData, err := f.getNativeData(ctx, from)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "unexpected error during fetching native collection data")
 	}
 
 	// 6. If its equal to the current chain
@@ -155,7 +155,7 @@ func (f *nftOperator) getTargetOnChainItem(ctx context.Context, from *tokentypes
 	// 7. getting native OnChainItem (should exist)
 	native, err := f.tryGetOnChainItem(ctx, from, nativeCollectionData.Index.Chain)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "unexpected error during fetching native onChainItem")
 	}
 
 	if native == nil {
