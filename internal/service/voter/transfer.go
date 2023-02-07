@@ -42,7 +42,7 @@ func NewTransferOperator(cfg config.Config) *TransferOperator {
 // Implements verifiers.ITransferOperator
 var _ verifiers.TransferOperator = &TransferOperator{}
 
-func (t *TransferOperator) VerifyTransfer(tx, eventId string, transfer *rarimotypes.Transfer) error {
+func (t *TransferOperator) VerifyTransfer(ctx context.Context, tx, eventId string, transfer *rarimotypes.Transfer) error {
 	if transfer.From.Chain != t.chain {
 		return verifiers.ErrUnsupportedNetwork
 	}
@@ -57,17 +57,24 @@ func (t *TransferOperator) VerifyTransfer(tx, eventId string, transfer *rarimoty
 		return err
 	}
 
-	transaction, err := service.GetTransaction(context.TODO(), t.solana, sig)
+	transaction, err := service.GetTransaction(ctx, t.solana, sig)
 	if err != nil {
 		return err
 	}
 
 	instruction := transaction.Message.Instructions[msgId]
-	if transaction.Message.AccountKeys[instruction.ProgramIDIndex] == t.program {
-		if operator, ok := t.operators[contract.Instruction(instruction.Data[DataInstructionCodeIndex])]; ok {
-			return operator.ParseTransaction(context.TODO(), service.GetInstructionAccounts(transaction.Message.AccountKeys, instruction.Accounts), instruction, transfer)
-		}
+
+	if transaction.Message.AccountKeys[instruction.ProgramIDIndex] != t.program {
+		return verifiers.ErrWrongOperationContent
 	}
 
-	return verifiers.ErrWrongOperationContent
+	operator, ok := t.operators[contract.Instruction(instruction.Data[DataInstructionCodeIndex])]
+	if !ok {
+		return verifiers.ErrWrongOperationContent
+	}
+
+	return operator.ParseTransaction(ctx,
+		service.GetInstructionAccounts(transaction.Message.AccountKeys, instruction.Accounts),
+		instruction,
+		transfer)
 }
