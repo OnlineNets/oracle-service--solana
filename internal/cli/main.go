@@ -61,7 +61,7 @@ func Run(args []string) bool {
 		go voter.NewTransferSubscriber(v, cfg.Tendermint(), cfg.Cosmos(), cfg.Log(), cfg.Subscriber()).Run(context.Background())
 
 		// Running GRPC server
-		err = grpc.NewSaverService(cfg.Log(), cfg.Listener(), v).Run()
+		err = grpc.NewSaverService(cfg.Log(), cfg.Listener(), v, cfg.Cosmos()).Run()
 	case saverCmd.FullCommand():
 		// Running subscriber for new transaction on bridge
 		listener.NewService(cfg).Listen(context.TODO())
@@ -87,7 +87,7 @@ func Run(args []string) bool {
 		go listener.NewService(cfg).Listen(context.Background())
 
 		// Running GRPC server
-		err = grpc.NewSaverService(cfg.Log(), cfg.Listener(), v).Run()
+		err = grpc.NewSaverService(cfg.Log(), cfg.Listener(), v, cfg.Cosmos()).Run()
 	default:
 		log.Errorf("unknown command %s", cmd)
 		return false

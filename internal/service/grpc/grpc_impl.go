@@ -21,11 +21,12 @@ type SaverService struct {
 	rarimo   *grpc.ClientConn
 }
 
-func NewSaverService(log *logan.Entry, listener net.Listener, voter *voter.Voter) *SaverService {
+func NewSaverService(log *logan.Entry, listener net.Listener, voter *voter.Voter, rarimo *grpc.ClientConn) *SaverService {
 	return &SaverService{
 		log:      log,
 		listener: listener,
 		voter:    voter,
+		rarimo:   rarimo,
 	}
 }
 
