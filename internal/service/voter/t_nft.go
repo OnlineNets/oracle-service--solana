@@ -47,11 +47,6 @@ func (f *nftOperator) ParseTransaction(ctx context.Context, accounts []solana.Pu
 		return errors.Wrap(err, "error querying transfer from core")
 	}
 
-	// Disable meta check if item has been already created
-	if transferResp.Transfer.Meta == nil {
-		transfer.Meta = nil
-	}
-
 	if !proto.Equal(&transferResp.Transfer, transfer) {
 		return verifiers.ErrWrongOperationContent
 	}
@@ -86,7 +81,7 @@ func (f *nftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKe
 		return nil, err
 	}
 
-	meta, err := f.getItemMeta(from)
+	meta, err := f.getItemMeta(ctx, from)
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +216,13 @@ func (f *nftOperator) getTargetDataIndex(ctx context.Context, from *tokentypes.O
 	return nil, verifiers.ErrWrongOperationContent
 }
 
-func (f *nftOperator) getItemMeta(from *tokentypes.OnChainItemIndex) (*tokentypes.ItemMetadata, error) {
+func (f *nftOperator) getItemMeta(ctx context.Context, from *tokentypes.OnChainItemIndex) (*tokentypes.ItemMetadata, error) {
+	// return empty meta if should not been provided
+	_, err := tokentypes.NewQueryClient(f.rarimo).OnChainItem(ctx, &tokentypes.QueryGetOnChainItemRequest{Chain: from.Chain, Address: from.Address, TokenID: from.TokenID})
+	if err == nil {
+		return nil, nil
+	}
+
 	metadata, err := f.getMetadata(solana.MustPublicKeyFromBase58(from.TokenID))
 	if err != nil {
 		return nil, errors.Wrap(err, "error fetching metadata from chain")
