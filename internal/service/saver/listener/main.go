@@ -26,6 +26,7 @@ func NewService(cfg config.Config) *Service {
 	return &Service{
 		log:        cfg.Log(),
 		processor:  saver.NewTxProcessor(cfg),
+		solana:     cfg.SolanaRPC(),
 		programId:  cfg.ListenConf().ProgramId,
 		wsEndpoint: cfg.SolanaWSEndpoint(),
 	}
