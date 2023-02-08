@@ -916,6 +916,8 @@ gitlab.com/rarimo/rarimo-core v0.0.0-20230203123832-78dfff3d1842 h1:1y+ZIXW4roBL
 gitlab.com/rarimo/rarimo-core v0.0.0-20230203123832-78dfff3d1842/go.mod h1:0XWNH55wHu8adSu5f4go26ZxDp7uUblS6dZNlDrQ0zM=
 gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230207123243-a5e30ba5d105 h1:mnL94Yry22V42QG46wCWiJ24vF/SUfEzGj6AVTbK1Rw=
 gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230207123243-a5e30ba5d105/go.mod h1:8EKpW1545reXwj7AN/tdIzpMkr50Cu0c4Khjo8sY1xw=
+gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230208165252-36b13cc156d2 h1:dlRmPEO7egSDfrCaIyKlHTOz7aH8tkTpIn/g5p6Ha38=
+gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230208165252-36b13cc156d2/go.mod h1:8EKpW1545reXwj7AN/tdIzpMkr50Cu0c4Khjo8sY1xw=
 gitlab.com/rarimo/solana-program-go v0.0.0-20221213131545-b132d8f4bb2a h1:01s65Gbi7yQL0r1ZbdM6kMSxf7nrFNg72UPPHolk2WE=
 gitlab.com/rarimo/solana-program-go v0.0.0-20221213131545-b132d8f4bb2a/go.mod h1:Fivs168ovoGl0rvOb2HIfwRPebK4i7EDJrcHxguT4gw=
 gitlab.com/rarimo/solana-program-go v0.0.0-20230201224757-533c0edcb066 h1:Tq8DrAKsnAFpiE+QaQkHsWURylXS5N0GG88ksH67EKk=
