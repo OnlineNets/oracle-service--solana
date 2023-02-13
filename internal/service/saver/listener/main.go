@@ -2,16 +2,20 @@ package listener
 
 import (
 	"context"
+	"time"
 
 	"github.com/olegfomenko/solana-go"
 	"github.com/olegfomenko/solana-go/rpc"
 	"github.com/olegfomenko/solana-go/rpc/ws"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
+	"gitlab.com/distributed_lab/running"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/saver"
 )
+
+const runnerName = "bridge-listener"
 
 type Service struct {
 	log       *logan.Entry
@@ -33,6 +37,10 @@ func NewService(cfg config.Config) *Service {
 }
 
 func (s *Service) Listen(ctx context.Context) {
+	running.UntilSuccess(ctx, s.log, runnerName, s.listen, time.Second, time.Second)
+}
+
+func (s *Service) listen(ctx context.Context) (bool, error) {
 	wsCtx, wsCancel := context.WithCancel(ctx)
 	defer wsCancel()
 
@@ -56,12 +64,11 @@ func (s *Service) Listen(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			return
+			return true, nil
 		default:
 			got, err := sub.Recv()
 			if err != nil {
-				s.log.WithError(err).Error("failed to receive transaction")
-				continue
+				return false, errors.Wrap(err, "failed to receive transaction")
 			}
 
 			tx, err := service.GetTransaction(ctx, s.solana, got.Value.Signature)
