@@ -37,7 +37,7 @@ func NewService(cfg config.Config) *Service {
 }
 
 func (s *Service) Listen(ctx context.Context) {
-	running.UntilSuccess(ctx, s.log, runnerName, s.listen, time.Second, time.Second)
+	running.UntilSuccess(ctx, s.log, runnerName, s.listen, 5*time.Second, 5*time.Second)
 }
 
 func (s *Service) listen(ctx context.Context) (bool, error) {
