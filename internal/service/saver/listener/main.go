@@ -46,7 +46,7 @@ func (s *Service) listen(ctx context.Context) (bool, error) {
 
 	client, err := ws.Connect(wsCtx, s.wsEndpoint)
 	if err != nil {
-		panic(errors.Wrap(err, "error opening solana websocket"))
+		return false, errors.Wrap(err, "error opening solana websocket")
 	}
 
 	sub, err := client.LogsSubscribeMentions(
