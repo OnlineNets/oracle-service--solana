@@ -7,7 +7,7 @@ import (
 	"github.com/olegfomenko/solana-go"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
-	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
+	oracletypes "gitlab.com/rarimo/rarimo-core/x/oraclemanager/types"
 	"gitlab.com/rarimo/savers/saver-grpc-lib/broadcaster"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service"
@@ -20,7 +20,7 @@ const (
 )
 
 type IOperator interface {
-	GetMessage(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.MsgCreateTransferOp, error)
+	GetMessage(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*oracletypes.MsgCreateTransferOp, error)
 }
 
 type TxProcessor struct {

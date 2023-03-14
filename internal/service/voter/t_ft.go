@@ -10,6 +10,7 @@ import (
 	"github.com/olegfomenko/solana-go"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
+	oracletypes "gitlab.com/rarimo/rarimo-core/x/oraclemanager/types"
 	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
 	tokentypes "gitlab.com/rarimo/rarimo-core/x/tokenmanager/types"
 	"gitlab.com/rarimo/savers/saver-grpc-lib/voter/verifiers"
@@ -40,7 +41,7 @@ func (f *ftOperator) ParseTransaction(ctx context.Context, accounts []solana.Pub
 	msg.Tx = transfer.Tx
 	msg.EventId = transfer.EventId
 
-	transferResp, err := rarimotypes.NewQueryClient(f.rarimo).Transfer(ctx, &rarimotypes.QueryGetTransferRequest{Msg: *msg})
+	transferResp, err := oracletypes.NewQueryClient(f.rarimo).Transfer(ctx, &oracletypes.QueryGetTransferRequest{Msg: *msg})
 	if err != nil {
 		return errors.Wrap(err, "error querying transfer from core")
 	}
@@ -52,7 +53,7 @@ func (f *ftOperator) ParseTransaction(ctx context.Context, accounts []solana.Pub
 	return nil
 }
 
-func (f *ftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*rarimotypes.MsgCreateTransferOp, error) {
+func (f *ftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*oracletypes.MsgCreateTransferOp, error) {
 	var args contract.DepositFTArgs
 	if err := borsh.Deserialize(&args, instruction.Data); err != nil {
 		return nil, errors.Wrap(err, "error desser tx args")
@@ -71,7 +72,7 @@ func (f *ftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey
 		return nil, err
 	}
 
-	msg := &rarimotypes.MsgCreateTransferOp{
+	msg := &oracletypes.MsgCreateTransferOp{
 		Sender:   accounts[contract.DepositFTOwnerIndex].String(),
 		Receiver: args.ReceiverAddress,
 		Amount:   fmt.Sprint(args.Amount),
