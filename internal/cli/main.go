@@ -6,10 +6,14 @@ import (
 	"github.com/alecthomas/kingpin"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/logan/v3"
+	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
+	"gitlab.com/rarimo/savers/saver-grpc-lib/voter"
+	"gitlab.com/rarimo/savers/saver-grpc-lib/voter/verifiers"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/solana/catchup"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/solana/listener"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/grpc"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/saver/catchup"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/saver/listener"
+	voterservice "gitlab.com/rarimo/savers/sol-saver-svc/internal/service/voter"
 )
 
 func Run(args []string) bool {
@@ -27,11 +31,12 @@ func Run(args []string) bool {
 	app := kingpin.New("sol-saver-svc", "")
 
 	runCmd := app.Command("run", "run command")
-	serviceCmd := runCmd.Command("service", "run service") // you can insert custom help
 
-	migrateCmd := app.Command("migrate", "migrate command")
-	migrateUpCmd := migrateCmd.Command("up", "migrate db up")
-	migrateDownCmd := migrateCmd.Command("down", "migrate db down")
+	voterCmd := runCmd.Command("voter", "run voter service")
+	saverCmd := runCmd.Command("saver", "run saver service")
+	saverCatchupCmd := runCmd.Command("saver-catchup", "run saver service")
+
+	serviceCmd := runCmd.Command("service", "run service") // you can insert custom help
 
 	cmd, err := app.Parse(args[1:])
 	if err != nil {
@@ -40,20 +45,49 @@ func Run(args []string) bool {
 	}
 
 	switch cmd {
-	case serviceCmd.FullCommand():
-		go func() {
-			err := catchup.NewService(cfg).Catchup(context.Background())
-			if err != nil {
-				panic(err)
-			}
-		}()
+	case voterCmd.FullCommand():
+		verifier := verifiers.NewTransferVerifier(
+			voterservice.NewTransferOperator(cfg),
+			cfg.Log(),
+		)
 
+		v := voter.NewVoter(cfg.Log(), cfg.Broadcaster(), map[rarimotypes.OpType]voter.Verifier{
+			rarimotypes.OpType_TRANSFER: verifier,
+		})
+
+		// Running catchup for unvoted operations
+		voter.NewCatchupper(cfg.Cosmos(), v, cfg.Log()).Run(context.TODO())
+		// Running subscriber for new operations
+		go voter.NewTransferSubscriber(v, cfg.Tendermint(), cfg.Cosmos(), cfg.Log(), cfg.Subscriber()).Run(context.Background())
+
+		// Running GRPC server
+		err = grpc.NewSaverService(cfg.Log(), cfg.Listener(), v, cfg.Cosmos()).Run()
+	case saverCmd.FullCommand():
+		// Running subscriber for new transaction on bridge
+		listener.NewService(cfg).Listen(context.TODO())
+	case saverCatchupCmd.FullCommand():
+		// Running catchup for transaction on bridge
+		err = catchup.NewService(cfg).Catchup(context.TODO())
+	case serviceCmd.FullCommand():
+		verifier := verifiers.NewTransferVerifier(
+			voterservice.NewTransferOperator(cfg),
+			cfg.Log(),
+		)
+
+		v := voter.NewVoter(cfg.Log(), cfg.Broadcaster(), map[rarimotypes.OpType]voter.Verifier{
+			rarimotypes.OpType_TRANSFER: verifier,
+		})
+
+		// Running catchup for unvoted operations
+		voter.NewCatchupper(cfg.Cosmos(), v, cfg.Log()).Run(context.TODO())
+
+		// Running subscriber for new operations
+		go voter.NewTransferSubscriber(v, cfg.Tendermint(), cfg.Cosmos(), cfg.Log(), cfg.Subscriber()).Run(context.Background())
+		// Running subscriber for new transaction on bridge
 		go listener.NewService(cfg).Listen(context.Background())
-		err = service.NewSaverService(cfg).Run()
-	case migrateUpCmd.FullCommand():
-		err = MigrateUp(cfg)
-	case migrateDownCmd.FullCommand():
-		err = MigrateDown(cfg)
+
+		// Running GRPC server
+		err = grpc.NewSaverService(cfg.Log(), cfg.Listener(), v, cfg.Cosmos()).Run()
 	default:
 		log.Errorf("unknown command %s", cmd)
 		return false

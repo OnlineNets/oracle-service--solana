@@ -1,42 +1,49 @@
 package config
 
 import (
+	"github.com/olegfomenko/solana-go/rpc"
+	"github.com/tendermint/tendermint/rpc/client/http"
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
-	"gitlab.com/distributed_lab/kit/pgdb"
 	"gitlab.com/rarimo/savers/saver-grpc-lib/broadcaster"
+	"gitlab.com/rarimo/savers/saver-grpc-lib/voter"
+	"google.golang.org/grpc"
 )
 
 type Config interface {
 	comfig.Logger
 	comfig.Listenerer
-	pgdb.Databaser
 	broadcaster.Broadcasterer
-	Solaner
-	BridgeListener
-	Storager
+	voter.Subscriberer
+
+	Cosmos() *grpc.ClientConn
+	Tendermint() *http.HTTP
+	ListenConf() ListenConf
+	SolanaRPC() *rpc.Client
+	SolanaWSEndpoint() string
 }
 
 type config struct {
 	comfig.Logger
 	comfig.Listenerer
-	pgdb.Databaser
 	broadcaster.Broadcasterer
-	Solaner
-	BridgeListener
+	voter.Subscriberer
+
+	cosmos     comfig.Once
+	tendermint comfig.Once
+	lconf      comfig.Once
+	solRPC     comfig.Once
+	solWS      comfig.Once
+
 	getter kv.Getter
-	Storager
 }
 
 func New(getter kv.Getter) Config {
 	return &config{
-		getter:         getter,
-		Logger:         comfig.NewLogger(getter, comfig.LoggerOpts{}),
-		Listenerer:     comfig.NewListenerer(getter),
-		Solaner:        NewSolaner(getter),
-		BridgeListener: NewBridgeListener(getter),
-		Storager:       NewStorager(getter),
-		Databaser:      pgdb.NewDatabaser(getter),
-		Broadcasterer:  broadcaster.New(getter),
+		getter:        getter,
+		Logger:        comfig.NewLogger(getter, comfig.LoggerOpts{}),
+		Listenerer:    comfig.NewListenerer(getter),
+		Broadcasterer: broadcaster.New(getter),
+		Subscriberer:  voter.NewSubscriberer(getter),
 	}
 }

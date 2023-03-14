@@ -9,35 +9,34 @@ import (
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/solana/parser"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service"
+	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/saver"
 )
 
 type Service struct {
-	log    *logan.Entry
-	solana *rpc.Client
-	parser *parser.Service
+	log       *logan.Entry
+	solana    *rpc.Client
+	processor *saver.TxProcessor
 
 	programId solana.PublicKey
 	fromTx    solana.Signature
-	disabled  bool
 }
 
 func NewService(cfg config.Config) *Service {
 	return &Service{
-		log:    cfg.Log(),
-		solana: cfg.SolanaRPC(),
-		parser: parser.NewService(cfg),
+		log:       cfg.Log(),
+		solana:    cfg.SolanaRPC(),
+		processor: saver.NewTxProcessor(cfg),
 
 		programId: cfg.ListenConf().ProgramId,
 		fromTx:    cfg.ListenConf().FromTx,
-		disabled:  cfg.ListenConf().DisableCatchup,
 	}
 }
 
 // Catchup will list all transactions from last to specified in config and stored in l.fromTx
 func (s *Service) Catchup(ctx context.Context) error {
 	s.log.Info("Starting catchup")
-	if s.disabled || s.fromTx.Equals(solana.Signature{}) {
+	if s.fromTx.Equals(solana.Signature{}) {
 		return nil
 	}
 
@@ -72,7 +71,7 @@ func (s *Service) catchupFrom(ctx context.Context, start solana.Signature) (sola
 
 	for _, sig := range signatures {
 		s.log.Debug("Checking tx: " + sig.Signature.String())
-		tx, err := s.parser.GetTransaction(ctx, sig.Signature)
+		tx, err := service.GetTransaction(ctx, s.solana, sig.Signature)
 		if err != nil {
 			s.log.WithError(err).Error("failed to get transaction " + sig.Signature.String())
 
@@ -83,7 +82,7 @@ func (s *Service) catchupFrom(ctx context.Context, start solana.Signature) (sola
 			continue
 		}
 
-		err = s.parser.ParseTransaction(sig.Signature, tx)
+		err = s.processor.ProcessTransaction(ctx, sig.Signature, tx)
 		if err != nil {
 			s.log.WithError(err).Error("failed to process transaction " + sig.Signature.String())
 		}
