@@ -15,8 +15,7 @@ require (
 	gitlab.com/distributed_lab/kit v1.11.1
 	gitlab.com/distributed_lab/logan v3.8.1+incompatible
 	gitlab.com/distributed_lab/running v0.0.0-20200706131153-4af0e83eb96c
-	gitlab.com/rarimo/rarimo-core v0.0.0-20230314122626-215d622be7f4
-	gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230314124444-3b7c9cf243ce
+	gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230314171603-50919017c349
 	gitlab.com/rarimo/solana-program-go v0.0.0-20230201224757-533c0edcb066
 	google.golang.org/grpc v1.53.0
 )
@@ -137,6 +136,7 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/zondax/hid v0.9.1-0.20220302062450-5552068d2266 // indirect
 	gitlab.com/rarimo/broadcaster-svc v0.0.0-20221130133449-dfacd1486515 // indirect
+	gitlab.com/rarimo/rarimo-core v0.0.0-20230314163607-be633db74abc // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
