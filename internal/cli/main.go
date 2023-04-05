@@ -51,7 +51,7 @@ func Run(args []string) bool {
 			cfg.Log(),
 		)
 
-		v := voter.NewVoter(cfg.Log(), cfg.Broadcaster(), map[rarimotypes.OpType]voter.Verifier{
+		v := voter.NewVoter(cfg.ListenConf().Chain, cfg.Log(), cfg.Broadcaster(), map[rarimotypes.OpType]voter.Verifier{
 			rarimotypes.OpType_TRANSFER: verifier,
 		})
 
@@ -74,7 +74,7 @@ func Run(args []string) bool {
 			cfg.Log(),
 		)
 
-		v := voter.NewVoter(cfg.Log(), cfg.Broadcaster(), map[rarimotypes.OpType]voter.Verifier{
+		v := voter.NewVoter(cfg.ListenConf().Chain, cfg.Log(), cfg.Broadcaster(), map[rarimotypes.OpType]voter.Verifier{
 			rarimotypes.OpType_TRANSFER: verifier,
 		})
 
