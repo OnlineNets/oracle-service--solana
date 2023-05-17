@@ -17,13 +17,18 @@ func GetInstructionAccounts(accounts []solana.PublicKey, indexes []uint16) []sol
 	return result
 }
 
-// GetTransaction requests Solana transaction entry by signature
+// GetTransaction requests Solana transaction entry by signature.
+// Returns <nil> if tx was not successful.
 func GetTransaction(ctx context.Context, cli *rpc.Client, sig solana.Signature) (*solana.Transaction, error) {
 	out, err := cli.GetTransaction(ctx, sig, &rpc.GetTransactionOpts{
 		Encoding: solana.EncodingBase64,
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting transaction from solana")
+	}
+
+	if out.Meta.Err != nil {
+		return nil, nil
 	}
 
 	tx, err := solana.TransactionFromDecoder(bin.NewBinDecoder(out.Transaction.GetBinary()))

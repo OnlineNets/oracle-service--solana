@@ -82,8 +82,11 @@ func (s *Service) catchupFrom(ctx context.Context, start solana.Signature) (sola
 			continue
 		}
 
-		err = s.processor.ProcessTransaction(ctx, sig.Signature, tx)
-		if err != nil {
+		if tx == nil {
+			continue
+		}
+
+		if err = s.processor.ProcessTransaction(ctx, sig.Signature, tx); err != nil {
 			s.log.WithError(err).Error("failed to process transaction " + sig.Signature.String())
 		}
 

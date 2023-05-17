@@ -77,6 +77,10 @@ func (s *Service) listen(ctx context.Context) (bool, error) {
 				continue
 			}
 
+			if tx == nil {
+				continue
+			}
+
 			if err = s.processor.ProcessTransaction(ctx, got.Value.Signature, tx); err != nil {
 				s.log.WithError(err).Error("failed to process transaction " + got.Value.Signature.String())
 			}
