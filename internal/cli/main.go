@@ -7,6 +7,7 @@ import (
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/logan/v3"
 	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
+	"gitlab.com/rarimo/savers/saver-grpc-lib/metrics"
 	"gitlab.com/rarimo/savers/saver-grpc-lib/voter"
 	"gitlab.com/rarimo/savers/saver-grpc-lib/voter/verifiers"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
@@ -43,6 +44,8 @@ func Run(args []string) bool {
 		log.WithError(err).Error("failed to parse arguments")
 		return false
 	}
+
+	metrics.RunProfiling()
 
 	switch cmd {
 	case voterCmd.FullCommand():

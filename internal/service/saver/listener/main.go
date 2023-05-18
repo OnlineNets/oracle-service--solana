@@ -10,6 +10,7 @@ import (
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	"gitlab.com/distributed_lab/running"
+	"gitlab.com/rarimo/savers/saver-grpc-lib/metrics"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service"
 	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/saver"
@@ -61,6 +62,8 @@ func (s *Service) listen(ctx context.Context) (bool, error) {
 	defer sub.Unsubscribe()
 	defer client.Close()
 
+	metrics.WebsocketMetric.Set(metrics.WebsocketAvailable)
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -68,6 +71,7 @@ func (s *Service) listen(ctx context.Context) (bool, error) {
 		default:
 			got, err := sub.Recv()
 			if err != nil {
+				metrics.WebsocketMetric.Set(metrics.WebsocketDisconnected)
 				return false, errors.Wrap(err, "failed to receive transaction")
 			}
 
