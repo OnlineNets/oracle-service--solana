@@ -29,3 +29,7 @@ cosmos:
 subscriber:
   min_retry_period:
   max_retry_period:
+
+profiler:
+  enabled: true
+  addr: :8080
