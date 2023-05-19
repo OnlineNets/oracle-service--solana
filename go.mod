@@ -17,7 +17,7 @@ require (
 	gitlab.com/distributed_lab/logan v3.8.1+incompatible
 	gitlab.com/distributed_lab/running v0.0.0-20200706131153-4af0e83eb96c
 	gitlab.com/rarimo/rarimo-core v0.0.0-20230314163607-be633db74abc
-	gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230518172939-88e39461cddf
+	gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230519003057-defcb3bf34c5
 	gitlab.com/rarimo/solana-program-go v0.0.0-20230201224757-533c0edcb066
 	google.golang.org/grpc v1.53.0
 )

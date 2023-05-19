@@ -22,3 +22,7 @@ listen:
 broadcaster:
   addr: "localhost:9090"
   sender_account: "..."
+
+profiler:
+  enabled: true
+  addr: :8080

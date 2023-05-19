@@ -920,6 +920,8 @@ gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230314171603-50919017c349 h1:nT
 gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230314171603-50919017c349/go.mod h1:dim5SDOuuaTmTkTi/0Xsh7ytPpVvmWxnR7w0HKTAkEQ=
 gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230518172939-88e39461cddf h1:DWqqnOrqwGR9TU4nobwa2BQHzEWDcfjViMIeOi616yg=
 gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230518172939-88e39461cddf/go.mod h1:WWFiUcXHtI6KHmoh2Jh+fFuE7fBxC/Vs2bYi29VBlmY=
+gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230519003057-defcb3bf34c5 h1:ogafYIt4iIq3xlworWXd5frKpJ1ex3Mh9mqgfjzOZpY=
+gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230519003057-defcb3bf34c5/go.mod h1:WWFiUcXHtI6KHmoh2Jh+fFuE7fBxC/Vs2bYi29VBlmY=
 gitlab.com/rarimo/solana-program-go v0.0.0-20230201224757-533c0edcb066 h1:Tq8DrAKsnAFpiE+QaQkHsWURylXS5N0GG88ksH67EKk=
 gitlab.com/rarimo/solana-program-go v0.0.0-20230201224757-533c0edcb066/go.mod h1:Fivs168ovoGl0rvOb2HIfwRPebK4i7EDJrcHxguT4gw=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
