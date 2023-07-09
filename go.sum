@@ -1322,6 +1322,8 @@ gitlab.com/rarimo/cosmos-sdk v0.46.7-rc.6 h1:+rleF7jtwnoqPepJuiBexpebQmW63qi/V60
 gitlab.com/rarimo/cosmos-sdk v0.46.7-rc.6/go.mod h1:fqKqz39U5IlEFb4nbQ72951myztsDzFKKDtffYJ63nk=
 gitlab.com/rarimo/rarimo-core v0.0.0-20230621113332-c70c7e194a9d h1:+MfeQJK49MHqx8lcYZxWBW6CkJc6231KjZsbYXnqzkY=
 gitlab.com/rarimo/rarimo-core v0.0.0-20230621113332-c70c7e194a9d/go.mod h1:MjIRrlh4WsHLxwKMldD6lap0CzO5GeuUKpbGl091lec=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230709130226-0707c00fa5cd h1:tL/a+JqzqbBKGhyIfpzwufnlb52gNX/hpBsFuttjTNo=
+gitlab.com/rarimo/rarimo-core v0.0.0-20230709130226-0707c00fa5cd/go.mod h1:gu7K/hnfTAHPVzy/kj0r4M6oCuZ70SS96jbnsNekbkc=
 gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230621141315-a8a8ba3ce626 h1:Yv82irrDWg6qhBPpV3hRz2sl++7Jxi5FQNkRxs9/mwM=
 gitlab.com/rarimo/savers/saver-grpc-lib v0.0.0-20230621141315-a8a8ba3ce626/go.mod h1:HD+aTxRoy9vGfYfEgNtoV/00vQiUVJy8Ggd4+sHazpM=
 gitlab.com/rarimo/solana-program-go v0.0.0-20230201224757-533c0edcb066 h1:Tq8DrAKsnAFpiE+QaQkHsWURylXS5N0GG88ksH67EKk=
