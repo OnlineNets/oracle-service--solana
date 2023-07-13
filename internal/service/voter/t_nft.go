@@ -71,18 +71,18 @@ func (f *nftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKe
 		address = tokenId
 	}
 
-	from := &tokentypes.OnChainItemIndex{
+	from := tokentypes.OnChainItemIndex{
 		Chain:   f.chain,
 		Address: address,
 		TokenID: tokenId,
 	}
 
-	to, err := f.getTargetOnChainItem(ctx, from, args.NetworkTo)
+	to, err := f.getTargetOnChainItem(ctx, &from, args.NetworkTo)
 	if err != nil {
 		return nil, err
 	}
 
-	meta, err := f.getItemMeta(ctx, from)
+	meta, err := f.getItemMeta(ctx, &from)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func (f *nftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKe
 		Sender:   accounts[contract.DepositNFTOwnerIndex].String(),
 		Amount:   "1",
 		From:     from,
-		To:       to,
+		To:       *to,
 		Meta:     meta,
 	}
 

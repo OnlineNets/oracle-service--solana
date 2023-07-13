@@ -61,13 +61,13 @@ func (f *ftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey
 
 	address := hexutil.Encode(accounts[contract.DepositFTMintIndex].Bytes())
 
-	from := &tokentypes.OnChainItemIndex{
+	from := tokentypes.OnChainItemIndex{
 		Chain:   f.chain,
 		Address: address,
 		TokenID: "",
 	}
 
-	to, err := f.getTo(ctx, from, args.NetworkTo)
+	to, err := f.getTo(ctx, &from, args.NetworkTo)
 	if to == nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (f *ftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey
 		Receiver: args.ReceiverAddress,
 		Amount:   fmt.Sprint(args.Amount),
 		From:     from,
-		To:       to,
+		To:       *to,
 	}
 
 	if args.BundleData != nil && len(*args.BundleData) > 0 && args.BundleSeed != nil {

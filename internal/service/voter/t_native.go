@@ -59,7 +59,7 @@ func (n *nativeOperator) GetMessage(ctx context.Context, accounts []solana.Publi
 		return nil, errors.Wrap(err, "error desser tx args")
 	}
 
-	from := &tokentypes.OnChainItemIndex{
+	from := tokentypes.OnChainItemIndex{
 		Chain:   n.chain,
 		Address: "",
 		TokenID: "",
@@ -75,7 +75,7 @@ func (n *nativeOperator) GetMessage(ctx context.Context, accounts []solana.Publi
 		Sender:   accounts[contract.DepositNativeOwnerIndex].String(),
 		Amount:   fmt.Sprint(args.Amount),
 		From:     from,
-		To:       to,
+		To:       *to,
 	}
 
 	if args.BundleData != nil && len(*args.BundleData) > 0 && args.BundleSeed != nil {
