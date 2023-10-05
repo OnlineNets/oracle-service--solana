@@ -6,11 +6,11 @@ import (
 
 	"github.com/olegfomenko/solana-go"
 	"github.com/olegfomenko/solana-go/rpc"
-	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
-	"gitlab.com/rarimo/savers/saver-grpc-lib/voter/verifiers"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service"
-	"gitlab.com/rarimo/solana-program-go/contract"
+	rarimotypes "github.com/rarimo/rarimo-core/x/rarimocore/types"
+	"github.com/rarimo/saver-grpc-lib/voter/verifiers"
+	"github.com/rarimo/sol-saver-svc/internal/config"
+	"github.com/rarimo/sol-saver-svc/internal/service"
+	"github.com/rarimo/solana-program-go/contracts/bridge"
 )
 
 const DataInstructionCodeIndex = 0
@@ -23,7 +23,7 @@ type TransferOperator struct {
 	solana    *rpc.Client
 	program   solana.PublicKey
 	chain     string
-	operators map[contract.Instruction]IOperator
+	operators map[bridge.Instruction]IOperator
 }
 
 func NewTransferOperator(cfg config.Config) *TransferOperator {
@@ -31,10 +31,10 @@ func NewTransferOperator(cfg config.Config) *TransferOperator {
 		solana:  cfg.SolanaRPC(),
 		program: cfg.ListenConf().ProgramId,
 		chain:   cfg.ListenConf().Chain,
-		operators: map[contract.Instruction]IOperator{
-			contract.InstructionDepositNative: NewNativeOperator(cfg.ListenConf().Chain, cfg.Log(), cfg.Cosmos()),
-			contract.InstructionDepositFT:     NewFTOperator(cfg.ListenConf().Chain, cfg.Log(), cfg.Cosmos()),
-			contract.InstructionDepositNFT:    NewNFTOperator(cfg.ListenConf().Chain, cfg.SolanaRPC(), cfg.Cosmos()),
+		operators: map[bridge.Instruction]IOperator{
+			bridge.InstructionDepositNative: NewNativeOperator(cfg.ListenConf().Chain, cfg.Log(), cfg.Cosmos()),
+			bridge.InstructionDepositFT:     NewFTOperator(cfg.ListenConf().Chain, cfg.Log(), cfg.Cosmos()),
+			bridge.InstructionDepositNFT:    NewNFTOperator(cfg.ListenConf().Chain, cfg.SolanaRPC(), cfg.Cosmos()),
 		},
 	}
 }
@@ -68,7 +68,7 @@ func (t *TransferOperator) VerifyTransfer(ctx context.Context, tx, eventId strin
 		return verifiers.ErrWrongOperationContent
 	}
 
-	operator, ok := t.operators[contract.Instruction(instruction.Data[DataInstructionCodeIndex])]
+	operator, ok := t.operators[bridge.Instruction(instruction.Data[DataInstructionCodeIndex])]
 	if !ok {
 		return verifiers.ErrWrongOperationContent
 	}

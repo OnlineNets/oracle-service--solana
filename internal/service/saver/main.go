@@ -5,14 +5,14 @@ import (
 	"fmt"
 
 	"github.com/olegfomenko/solana-go"
+	oracletypes "github.com/rarimo/rarimo-core/x/oraclemanager/types"
+	"github.com/rarimo/saver-grpc-lib/broadcaster"
+	"github.com/rarimo/sol-saver-svc/internal/config"
+	"github.com/rarimo/sol-saver-svc/internal/service"
+	"github.com/rarimo/sol-saver-svc/internal/service/voter"
+	"github.com/rarimo/solana-program-go/contracts/bridge"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
-	oracletypes "gitlab.com/rarimo/rarimo-core/x/oraclemanager/types"
-	"gitlab.com/rarimo/savers/saver-grpc-lib/broadcaster"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/voter"
-	"gitlab.com/rarimo/solana-program-go/contract"
 )
 
 const (
@@ -26,7 +26,7 @@ type IOperator interface {
 type TxProcessor struct {
 	log         *logan.Entry
 	program     solana.PublicKey
-	operators   map[contract.Instruction]IOperator
+	operators   map[bridge.Instruction]IOperator
 	broadcaster broadcaster.Broadcaster
 }
 
@@ -35,10 +35,10 @@ func NewTxProcessor(cfg config.Config) *TxProcessor {
 		log:         cfg.Log(),
 		program:     cfg.ListenConf().ProgramId,
 		broadcaster: cfg.Broadcaster(),
-		operators: map[contract.Instruction]IOperator{
-			contract.InstructionDepositNative: voter.NewNativeOperator(cfg.ListenConf().Chain, cfg.Log(), cfg.Cosmos()),
-			contract.InstructionDepositFT:     voter.NewFTOperator(cfg.ListenConf().Chain, cfg.Log(), cfg.Cosmos()),
-			contract.InstructionDepositNFT:    voter.NewNFTOperator(cfg.ListenConf().Chain, cfg.SolanaRPC(), cfg.Cosmos()),
+		operators: map[bridge.Instruction]IOperator{
+			bridge.InstructionDepositNative: voter.NewNativeOperator(cfg.ListenConf().Chain, cfg.Log(), cfg.Cosmos()),
+			bridge.InstructionDepositFT:     voter.NewFTOperator(cfg.ListenConf().Chain, cfg.Log(), cfg.Cosmos()),
+			bridge.InstructionDepositNFT:    voter.NewNFTOperator(cfg.ListenConf().Chain, cfg.SolanaRPC(), cfg.Cosmos()),
 		},
 	}
 }
@@ -49,7 +49,7 @@ func (s *TxProcessor) ProcessTransaction(ctx context.Context, sig solana.Signatu
 
 	for index, instruction := range tx.Message.Instructions {
 		if accounts[instruction.ProgramIDIndex] == s.program {
-			if operator, ok := s.operators[contract.Instruction(instruction.Data[DataInstructionCodeIndex])]; ok {
+			if operator, ok := s.operators[bridge.Instruction(instruction.Data[DataInstructionCodeIndex])]; ok {
 				msg, err := operator.GetMessage(ctx, service.GetInstructionAccounts(accounts, instruction.Accounts), instruction)
 				if err != nil {
 					return errors.Wrap(err, "error getting message")

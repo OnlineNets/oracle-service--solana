@@ -8,13 +8,13 @@ import (
 	"github.com/near/borsh-go"
 	"github.com/olegfomenko/solana-go"
 	"github.com/olegfomenko/solana-go/rpc"
+	oracletypes "github.com/rarimo/rarimo-core/x/oraclemanager/types"
+	rarimotypes "github.com/rarimo/rarimo-core/x/rarimocore/types"
+	tokentypes "github.com/rarimo/rarimo-core/x/tokenmanager/types"
+	"github.com/rarimo/saver-grpc-lib/voter/verifiers"
+	"github.com/rarimo/solana-program-go/contracts/bridge"
+	"github.com/rarimo/solana-program-go/metaplex"
 	"gitlab.com/distributed_lab/logan/v3/errors"
-	oracletypes "gitlab.com/rarimo/rarimo-core/x/oraclemanager/types"
-	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
-	tokentypes "gitlab.com/rarimo/rarimo-core/x/tokenmanager/types"
-	"gitlab.com/rarimo/savers/saver-grpc-lib/voter/verifiers"
-	"gitlab.com/rarimo/solana-program-go/contract"
-	"gitlab.com/rarimo/solana-program-go/metaplex"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -56,13 +56,13 @@ func (f *nftOperator) ParseTransaction(ctx context.Context, accounts []solana.Pu
 }
 
 func (f *nftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*oracletypes.MsgCreateTransferOp, error) {
-	var args contract.DepositNFTArgs
+	var args bridge.DepositNFTArgs
 	if err := borsh.Deserialize(&args, instruction.Data); err != nil {
 		return nil, errors.Wrap(err, "error desser tx args")
 	}
 
-	tokenId := hexutil.Encode(accounts[contract.DepositNFTMintIndex].Bytes())
-	address, err := f.getTokenCollectionAddress(accounts[contract.DepositNFTMintIndex])
+	tokenId := hexutil.Encode(accounts[bridge.DepositNFTMintIndex].Bytes())
+	address, err := f.getTokenCollectionAddress(accounts[bridge.DepositNFTMintIndex])
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting collection address")
 	}
@@ -89,7 +89,7 @@ func (f *nftOperator) GetMessage(ctx context.Context, accounts []solana.PublicKe
 
 	msg := &oracletypes.MsgCreateTransferOp{
 		Receiver: args.ReceiverAddress,
-		Sender:   accounts[contract.DepositNFTOwnerIndex].String(),
+		Sender:   accounts[bridge.DepositNFTOwnerIndex].String(),
 		Amount:   "1",
 		From:     from,
 		To:       *to,

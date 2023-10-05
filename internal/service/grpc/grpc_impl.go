@@ -4,10 +4,10 @@ import (
 	"context"
 	"net"
 
+	rarimotypes "github.com/rarimo/rarimo-core/x/rarimocore/types"
+	lib "github.com/rarimo/saver-grpc-lib/grpc"
+	"github.com/rarimo/saver-grpc-lib/voter"
 	"gitlab.com/distributed_lab/logan/v3"
-	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
-	lib "gitlab.com/rarimo/savers/saver-grpc-lib/grpc"
-	"gitlab.com/rarimo/savers/saver-grpc-lib/voter"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

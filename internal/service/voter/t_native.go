@@ -8,13 +8,13 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/near/borsh-go"
 	"github.com/olegfomenko/solana-go"
+	oracletypes "github.com/rarimo/rarimo-core/x/oraclemanager/types"
+	rarimotypes "github.com/rarimo/rarimo-core/x/rarimocore/types"
+	tokentypes "github.com/rarimo/rarimo-core/x/tokenmanager/types"
+	"github.com/rarimo/saver-grpc-lib/voter/verifiers"
+	"github.com/rarimo/solana-program-go/contracts/bridge"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
-	oracletypes "gitlab.com/rarimo/rarimo-core/x/oraclemanager/types"
-	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
-	tokentypes "gitlab.com/rarimo/rarimo-core/x/tokenmanager/types"
-	"gitlab.com/rarimo/savers/saver-grpc-lib/voter/verifiers"
-	"gitlab.com/rarimo/solana-program-go/contract"
 	"google.golang.org/grpc"
 )
 
@@ -54,7 +54,7 @@ func (n *nativeOperator) ParseTransaction(ctx context.Context, accounts []solana
 }
 
 func (n *nativeOperator) GetMessage(ctx context.Context, accounts []solana.PublicKey, instruction solana.CompiledInstruction) (*oracletypes.MsgCreateTransferOp, error) {
-	var args contract.DepositNativeArgs
+	var args bridge.DepositNativeArgs
 	if err := borsh.Deserialize(&args, instruction.Data); err != nil {
 		return nil, errors.Wrap(err, "error desser tx args")
 	}
@@ -72,7 +72,7 @@ func (n *nativeOperator) GetMessage(ctx context.Context, accounts []solana.Publi
 
 	msg := &oracletypes.MsgCreateTransferOp{
 		Receiver: args.ReceiverAddress,
-		Sender:   accounts[contract.DepositNativeOwnerIndex].String(),
+		Sender:   accounts[bridge.DepositNativeOwnerIndex].String(),
 		Amount:   fmt.Sprint(args.Amount),
 		From:     from,
 		To:       *to,

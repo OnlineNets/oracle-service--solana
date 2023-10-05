@@ -7,13 +7,13 @@ import (
 	"github.com/olegfomenko/solana-go"
 	"github.com/olegfomenko/solana-go/rpc"
 	"github.com/olegfomenko/solana-go/rpc/ws"
+	"github.com/rarimo/saver-grpc-lib/metrics"
+	"github.com/rarimo/sol-saver-svc/internal/config"
+	"github.com/rarimo/sol-saver-svc/internal/service"
+	"github.com/rarimo/sol-saver-svc/internal/service/saver"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	"gitlab.com/distributed_lab/running"
-	"gitlab.com/rarimo/savers/saver-grpc-lib/metrics"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/saver"
 )
 
 const runnerName = "bridge-listener"

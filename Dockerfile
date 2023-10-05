@@ -1,6 +1,6 @@
 FROM golang:1.18-alpine as buildbase
 
-WORKDIR /go/src/gitlab.com/rarimo/savers/sol-saver-svc
+WORKDIR /go/src/github.com/rarimo/sol-saver-svc
 COPY vendor .
 COPY . .
 
@@ -8,7 +8,7 @@ ENV GO111MODULE="on"
 ENV CGO_ENABLED=0
 ENV GOOS="linux"
 
-RUN go build -o /usr/local/bin/sol-saver-svc gitlab.com/rarimo/savers/sol-saver-svc
+RUN go build -o /usr/local/bin/sol-saver-svc github.com/rarimo/sol-saver-svc
 
 
 ###

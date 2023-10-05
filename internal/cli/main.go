@@ -4,16 +4,16 @@ import (
 	"context"
 
 	"github.com/alecthomas/kingpin"
+	rarimotypes "github.com/rarimo/rarimo-core/x/rarimocore/types"
+	"github.com/rarimo/saver-grpc-lib/voter"
+	"github.com/rarimo/saver-grpc-lib/voter/verifiers"
+	"github.com/rarimo/sol-saver-svc/internal/config"
+	"github.com/rarimo/sol-saver-svc/internal/service/grpc"
+	"github.com/rarimo/sol-saver-svc/internal/service/saver/catchup"
+	"github.com/rarimo/sol-saver-svc/internal/service/saver/listener"
+	voterservice "github.com/rarimo/sol-saver-svc/internal/service/voter"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/logan/v3"
-	rarimotypes "gitlab.com/rarimo/rarimo-core/x/rarimocore/types"
-	"gitlab.com/rarimo/savers/saver-grpc-lib/voter"
-	"gitlab.com/rarimo/savers/saver-grpc-lib/voter/verifiers"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/config"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/grpc"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/saver/catchup"
-	"gitlab.com/rarimo/savers/sol-saver-svc/internal/service/saver/listener"
-	voterservice "gitlab.com/rarimo/savers/sol-saver-svc/internal/service/voter"
 )
 
 func Run(args []string) bool {
