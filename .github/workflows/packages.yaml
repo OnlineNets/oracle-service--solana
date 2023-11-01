@@ -22,14 +22,14 @@ jobs:
         with:
           go-version: '1.21.x'
       - name: Install dependencies
-        run: 
+        run: |
           go env -w GOPRIVATE=github.com/*
           go env -w GONOSUMDB=github.com/*
           go env -w GONOPROXY=github.com/*
           go mod tidy
           go mod vendor
       - name: Build
-        run: 
+        run: |
           go env -w GOPRIVATE=github.com/*
           go env -w GONOSUMDB=github.com/*
           go env -w GONOPROXY=github.com/*
