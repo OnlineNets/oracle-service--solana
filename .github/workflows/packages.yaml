@@ -11,29 +11,27 @@ on:
 #     tags:
 #       - 'v[0-9]+.[0-9]+.[0-9]+'
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+permissions:
+  contents: write
 
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Go
-        uses: actions/setup-go@v4
+      -
+        name: Checkout
+        uses: actions/checkout@v4
         with:
-          go-version: '1.21.x'
-      - name: Install dependencies
-        run: |
-          go env -w GOPRIVATE=github.com/*
-          go env -w GONOSUMDB=github.com/*
-          go env -w GONOPROXY=github.com/*
-          go mod tidy
-          go mod vendor
-      - name: Build
-        run: |
-          go env -w GOPRIVATE=github.com/*
-          go env -w GONOSUMDB=github.com/*
-          go env -w GONOPROXY=github.com/*
-          export CGO_ENABLED=1
-          export GO111MODULE=off
-          export GOOS=linux
-          go build
+          fetch-depth: 0
+      -
+        name: Set up Go
+        uses: actions/setup-go@v4
+      -
+        name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
